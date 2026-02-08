@@ -43,6 +43,7 @@ import java.util.function.Predicate;
 // TODO This class can be used for home menu constructed deck generation as well.
 public class DeckgenUtil {
     private static List<DeckProxy> advPrecons = Lists.newArrayList(), advThemes = Lists.newArrayList(), geneticAI = Lists.newArrayList();
+    private static String[] bannedList;
 
     public static Deck buildCardGenDeck(GameFormat format, boolean isForAI){
         try {
@@ -211,6 +212,13 @@ public class DeckgenUtil {
         return deck;
     }
 
+    public static Deck buildLDACArchetypeDeck(GameFormat format, boolean isForAI, String[] bannedCards)
+    {
+        //special variant of this method that is called from Adventure mode with a list of cards not to use in generation.
+        bannedList = bannedCards;
+        return buildLDACArchetypeDeck(format, isForAI);
+    }
+
     public static Deck buildLDACArchetypeDeck(GameFormat format, boolean isForAI){
         List<Archetype> keys = new ArrayList<>(CardArchetypeLDAGenerator.ldaArchetypes.get(format.getName()));
         Archetype randomKey = keys.get( MyRandom.getRandom().nextInt(keys.size()) );
@@ -226,15 +234,54 @@ public class DeckgenUtil {
      * @param isForAI
      * @return
      */
-    public static Deck buildLDACArchetypeDeck(Archetype archetype, GameFormat format, boolean isForAI){
-        List<Pair<String, Double>> preSelectedCardNames = archetype.getCardProbabilities();
+    public static Deck buildLDACArchetypeDeck(Archetype archetype, GameFormat format, boolean isForAI)
+    {
+        List<Pair<String, Double>> originalCardNames = archetype.getCardProbabilities();
+        List<Pair<String, Double>> preSelectedCardNames = new ArrayList<>(originalCardNames);
         PaperCard card = null;
-        for(Pair<String, Double> pair : preSelectedCardNames){
-            card = StaticData.instance().getCommonCards().getUniqueByName(pair.getLeft());
-            if(card != null &&!card.getRules().getType().isLand()){
+
+        if(bannedList != null && bannedList.length > 0)
+        {
+            Set<String> bannedSet = new HashSet<>(Arrays.asList(bannedList));
+
+            preSelectedCardNames.removeIf(pair ->
+            {
+                if (pair == null)
+                {
+                    return true;
+                }
+                String name = pair.getLeft();
+                return name == null || bannedSet.contains(name);
+            });
+
+            // 4) If we somehow removed everything, fall back to the original list
+            if (preSelectedCardNames.isEmpty())
+            {
+                preSelectedCardNames = originalCardNames;
+            }
+            bannedList = null;
+        }
+
+        // 5) Existing logic to pick a representative card
+        for (Pair<String, Double> pair : preSelectedCardNames)
+        {
+            if (pair == null)
+            {
+                continue;
+            }
+            String name = pair.getLeft();
+            if (name == null)
+            {
+                continue;
+            }
+
+            card = StaticData.instance().getCommonCards().getUniqueByName(name);
+            if (card != null && !card.getRules().getType().isLand())
+            {
                 break;
             }
         }
+
         List<PaperCard> selectedCards = new ArrayList<>();
         int cardCount=0;
         for(Pair<String, Double> pair:preSelectedCardNames){

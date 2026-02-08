@@ -94,7 +94,7 @@ public class EnemyData implements Serializable {
             } else if (rand > 50) {
                 fmt = FModel.getFormats().getModern();
             }
-            return DeckgenUtil.buildLDACArchetypeDeck(fmt, true);
+            return DeckgenUtil.buildLDACArchetypeDeck(fmt, true, CardUtil.getBannedList());
         }
 
         if (randomizeDeck) {

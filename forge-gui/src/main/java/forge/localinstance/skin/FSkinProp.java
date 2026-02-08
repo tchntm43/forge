@@ -87,6 +87,9 @@ public enum FSkinProp {
     IMG_ZONE_EXILE       (new int[] {320, 40, 40, 40}, PropType.IMAGE),
     IMG_HDZONE_EXILE     (new int[] {262, 136, 128, 128}, PropType.BUTTONS),
 
+    IMG_AUTO_SELL        (new int[] {502, 136, 128, 128}, PropType.BUTTONS),
+    IMG_TRADE_BINDER     (new int[] {502, 13, 128, 128}, PropType.BUTTONS),
+
     IMG_ZONE_FLASHBACK   (new int[] {280, 80, 40, 40}, PropType.IMAGE),
     IMG_HDZONE_FLASHBACK (new int[] {262, 6, 128, 128}, PropType.BUTTONS),
 

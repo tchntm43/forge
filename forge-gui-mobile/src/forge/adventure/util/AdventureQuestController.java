@@ -256,6 +256,23 @@ public class AdventureQuestController implements Serializable {
         }, 0.25f);
     }
 
+    public void enqueueDialog(DialogData dialog, MapStage stage)
+    {
+        //A helper method to allow MapDialog to be used without being connected to quests
+        //normally, supply MapStage.getInstance() as the second argument when called.
+        if (dialog == null)
+        {
+            return;
+        }
+
+        dialogQueue.add(dialog);
+
+        if (activeDialog == null)
+        {
+            displayNextDialog(stage);
+        }
+    }
+
     public static class DistanceSort implements Comparator<PointOfInterest>
     {
         //ToDo: Make this more generic, compare PoI, mobs, random points, and player position

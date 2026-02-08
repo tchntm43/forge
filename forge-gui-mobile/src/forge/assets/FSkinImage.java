@@ -20,6 +20,9 @@ public enum FSkinImage implements FSkinImageInterface {
     EXILE       (FSkinProp.IMG_ZONE_EXILE),
     HDEXILE     (FSkinProp.IMG_HDZONE_EXILE),
 
+    AUTOSELL    (FSkinProp.IMG_AUTO_SELL),
+    TRADEBINDER (FSkinProp.IMG_TRADE_BINDER),
+
     FLASHBACK   (FSkinProp.IMG_ZONE_FLASHBACK),
     HDFLASHBACK (FSkinProp.IMG_HDZONE_FLASHBACK),
 

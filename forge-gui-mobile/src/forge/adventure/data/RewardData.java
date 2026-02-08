@@ -206,18 +206,25 @@ public class RewardData implements Serializable {
                     break;
                 case "card":
                 case "randomCard":
-                    if (cardName != null && !cardName.isEmpty()) {
-                        if (allCardVariants) {
+                    if (cardName != null && !cardName.isEmpty())
+                    {
+                        if (allCardVariants)
+                        {
                             PaperCard card = CardUtil.getCardByName(cardName);
-                            if (card != null) {
-                                for (int i = 0; i < count + addedCount; i++) {
+                            if (card != null)
+                            {
+                                for (int i = 0; i < count + addedCount; i++)
+                                {
                                     PaperCard finalCard = CardUtil.getCardByNameAndEdition(cardName, card.getEdition());
                                     if (finalCard != null)
                                         ret.add(new Reward(finalCard, isNoSell));
                                 }
                             }
-                        } else {
-                            for (int i = 0; i < count + addedCount; i++) {
+                        }
+                        else
+                        {
+                            for (int i = 0; i < count + addedCount; i++)
+                            {
                                 PaperCard card = StaticData.instance().getCommonCards().getCard(cardName);
                                 if (card != null)
                                     ret.add(new Reward(card, isNoSell));
@@ -225,15 +232,28 @@ public class RewardData implements Serializable {
                                     System.err.println("Missing card: " + cardName);
                             }
                         }
-                    } else if (sourceDeck != null && !sourceDeck.isEmpty()) {
+                    }
+                    else if (sourceDeck != null && !sourceDeck.isEmpty())
+                    {
                         for( PaperCard card : CardUtil.generateCards(CardUtil.getDeck(sourceDeck, false, false, "", false, false).getAllCardsInASinglePool().toFlatList() ,this, count+addedCount, rewardRandom)) {
                             if (card != null)
                                 ret.add(new Reward(card, isNoSell));
                         }
-                    } else {
-                        for (PaperCard card : CardUtil.generateCards(isForEnemy ? allEnemyCards:allCards,this, count + addedCount, rewardRandom)) {
+                    }
+                    else
+                    {
+                        List<PaperCard> generated = CardUtil.generateCards(
+                                isForEnemy ? allEnemyCards : allCards,
+                                this,
+                                count + addedCount,
+                                rewardRandom);
+
+                        for (PaperCard card : generated)
+                        {
                             if (card != null)
+                            {
                                 ret.add(new Reward(card, isNoSell));
+                            }
                         }
                     }
                     break;

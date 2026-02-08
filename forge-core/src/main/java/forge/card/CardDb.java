@@ -537,7 +537,7 @@ public final class CardDb implements ICardDatabase, IDeckGenPool {
     private void reIndex() {
         uniqueCardsByName.clear();
         for (Entry<String, Collection<PaperCard>> kv : allCardsByName.asMap().entrySet()) {
-            PaperCard pc = getFirstNonSpeicalWithImage(kv.getValue());
+            PaperCard pc = getOldestNonSpecialWithImage(kv.getValue());
             uniqueCardsByName.put(kv.getKey(), pc);
         }
     }
@@ -553,6 +553,22 @@ public final class CardDb implements ICardDatabase, IDeckGenPool {
             pc = iterator.next();
         }
         return pc;
+    }
+
+    private static PaperCard getOldestNonSpecialWithImage(final Collection<PaperCard> cards)
+    {
+        PaperCard candidateWithImage = null;
+        PaperCard fallback = null;
+
+        for (PaperCard pc : cards)
+        {
+            fallback = pc;
+            if (pc.hasImage() && !pc.getRarity().equals(CardRarity.Special))
+            {
+                candidateWithImage = pc;
+            }
+        }
+        return candidateWithImage != null ? candidateWithImage : fallback;
     }
 
     public boolean setPreferredArt(String cardName, String setCode, int artIndex) {
@@ -969,7 +985,8 @@ public final class CardDb implements ICardDatabase, IDeckGenPool {
 
     // returns a list of all cards from their respective latest (or preferred) editions
     @Override
-    public Collection<PaperCard> getUniqueCards() {
+    public Collection<PaperCard> getUniqueCards()
+    {
         return uniqueCardsByName.values();
     }
 

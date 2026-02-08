@@ -135,6 +135,7 @@ public class AdventurePlayer implements Serializable, SaveFileContent {
         statistic.clear();
         newCards.clear();
         autoSellCards.clear();
+        tradeBinder.clear();
         favoriteCards.clear();
         AdventureEventController.clear();
         AdventureQuestController.clear();
@@ -149,6 +150,7 @@ public class AdventurePlayer implements Serializable, SaveFileContent {
 
     public final ItemPool<PaperCard> newCards = new ItemPool<>(PaperCard.class);
     public final ItemPool<PaperCard> autoSellCards = new ItemPool<>(PaperCard.class);
+    public final ItemPool<PaperCard> tradeBinder = new ItemPool<>(PaperCard.class);
     public final Set<PaperCard> favoriteCards = new HashSet<>();
 
     public void create(String n, Deck startingDeck, boolean male, int race, int avatar, boolean isFantasy,
@@ -700,6 +702,15 @@ public class AdventurePlayer implements Serializable, SaveFileContent {
                     autoSellCards.add(pc);
             }
         }
+        if (data.containsKey("tradeBinder")) {
+            PaperCard[] items = (PaperCard[]) data.readObject("tradeBinder");
+            for (PaperCard pc : items) {
+                if (isUnsupported.test(pc))
+                    unsupportedCards.add(pc);
+                else
+                    tradeBinder.add(pc);
+            }
+        }
         if (data.containsKey("favoriteCards")) {
             PaperCard[] items = (PaperCard[]) data.readObject("favoriteCards");
             for (PaperCard pc : items) {
@@ -828,6 +839,7 @@ public class AdventurePlayer implements Serializable, SaveFileContent {
 
         data.storeObject("newCards", newCards.toFlatList().toArray(new PaperCard[0]));
         data.storeObject("autoSellCards", autoSellCards.toFlatList().toArray(new PaperCard[0]));
+        data.storeObject("tradeBinder", tradeBinder.toFlatList().toArray(new PaperCard[0]));
         data.storeObject("favoriteCards", favoriteCards.toArray(new PaperCard[0]));
 
         return data;
@@ -925,6 +937,10 @@ public class AdventurePlayer implements Serializable, SaveFileContent {
         onGoldChangeList.emit();
     }
 
+    public void addGoldp(int goldCount) {
+        addGold(goldCount);
+    }
+
     public void onShardsChange(Runnable o) {
         onShardsChangeList.add(o);
         o.run();
@@ -989,6 +1005,12 @@ public class AdventurePlayer implements Serializable, SaveFileContent {
 
     public void heal(int amount) {
         life = Math.min(life + amount, maxLife);
+        onLifeTotalChangeList.emit();
+    }
+
+    public void loseLife(int amount) {
+        // New code
+        life = Math.max(life - amount, 0);
         onLifeTotalChangeList.emit();
     }
 
@@ -1492,8 +1514,14 @@ public class AdventurePlayer implements Serializable, SaveFileContent {
         events.remove(completedEvent);
     }
 
-    public ItemPool<PaperCard> getAutoSellCards() {
+    public ItemPool<PaperCard> getAutoSellCards()
+    {
         return autoSellCards;
+    }
+
+    public ItemPool<PaperCard> getTradeBinder()
+    {
+        return tradeBinder;
     }
 
     /**

@@ -11,19 +11,24 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import forge.Forge;
 import forge.adventure.character.CharacterSprite;
 import forge.adventure.character.EnemySprite;
+import forge.adventure.character.PlayerSprite;
 import forge.adventure.data.*;
+import forge.adventure.player.AdventurePlayer;
 import forge.adventure.pointofintrest.PointOfInterest;
-import forge.adventure.scene.DuelScene;
-import forge.adventure.scene.RewardScene;
-import forge.adventure.scene.Scene;
-import forge.adventure.scene.TileMapScene;
+import forge.adventure.scene.*;
 import forge.adventure.util.*;
 import forge.adventure.world.World;
 import forge.adventure.world.WorldSave;
+import forge.card.CardRules;
+import forge.card.CardType;
+import forge.deck.CardPool;
+import forge.deck.Deck;
 import forge.gui.FThreads;
+import forge.item.PaperCard;
 import forge.screens.TransitionScreen;
 import forge.sound.SoundEffectType;
 import forge.sound.SoundSystem;
+import forge.util.Aggregates;
 import forge.util.MyRandom;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -50,6 +55,13 @@ public class WorldStage extends GameStage implements SaveFileContent {
     final Rectangle tempBoundingRect = new Rectangle();
     final Vector2 enemyMoveVector = new Vector2();
     boolean collided = false;
+
+    //New variables used for generating random overworld events
+    private float randomEventTimer = 0f;          // counts time while player is moving
+    private float randomEventCooldown = 0f;       // cooldown after an event fires
+    private static final float RANDOM_EVENT_INTERVAL = 1f;   // seconds between rolls while moving
+    private static final float RANDOM_EVENT_COOLDOWN = 5f;   // seconds with no rolls after an event
+    private final java.util.Random randomEventRng = new java.util.Random();
 
     public WorldStage() {
         super();
@@ -114,6 +126,18 @@ public class WorldStage extends GameStage implements SaveFileContent {
                     if (collided)
                         return;
                     collided = true;
+                    Forge.advFreezePlayerControls = true;
+                    player.clearCollisionHeight();
+
+                    // Roll 1-in-5 chance to offer trading instead of fighting
+                    int roll = MyRandom.getRandom().nextInt(5);
+                    if (roll == 0) {
+                        DialogData root = TradeController.getInstance().startTrading(mob);
+                        AdventureQuestController.instance().enqueueDialog(root, MapStage.getInstance());
+
+                        return;
+                    }
+
                     player.setAnimation(CharacterSprite.AnimationTypes.Attack);
                     player.playEffect(Paths.EFFECT_SPARKS, 0.5f);
                     mob.setAnimation(CharacterSprite.AnimationTypes.Attack);
@@ -122,8 +146,7 @@ public class WorldStage extends GameStage implements SaveFileContent {
                     int duration = mob.getData().boss ? 400 : 200;
                     if (Controllers.getCurrent() != null && Controllers.getCurrent().canVibrate())
                         Controllers.getCurrent().startVibration(duration, 1);
-                    Forge.advFreezePlayerControls = true;
-                    player.clearCollisionHeight();
+
                     startPause(0.8f, () -> {
                         Forge.setCursor(null, Forge.magnifyToggle ? "1" : "2");
                         SoundSystem.instance.play(SoundEffectType.ManaBurn, false);
@@ -133,7 +156,9 @@ public class WorldStage extends GameStage implements SaveFileContent {
                                 collided = false;
                                 duelScene.initDuels(player, mob);
                                 Forge.switchScene(duelScene);
-                            }, Forge.takeScreenshot(), true, false, false, false, "", Current.player().avatar(), mob.getAtlasPath(), Current.player().getName(), mob.getName()));
+                            }, Forge.takeScreenshot(), true, false, false, false,
+                                    "", Current.player().avatar(), mob.getAtlasPath(),
+                                    Current.player().getName(), mob.getName()));
                             currentMob = mob;
                             WorldSave.getCurrentSave().autoSave();
                         });
@@ -141,12 +166,164 @@ public class WorldStage extends GameStage implements SaveFileContent {
                     break;
                 }
             }
+            //new code, timers for random map events
+            if (randomEventCooldown > 0f) {
+                randomEventCooldown -= delta;
+            } else {
+                randomEventTimer += delta;
+                if (randomEventTimer >= RANDOM_EVENT_INTERVAL) {
+                    randomEventTimer = 0f;
+                    rollRandomMapEvent();
+                }
+            }
+            //end of new code
         } else {
             for (Pair<Float, EnemySprite> pair : enemies) {
                 pair.getValue().setAnimation(CharacterSprite.AnimationTypes.Idle);
             }
         }
         collided = false;
+    }
+
+    private void rollRandomMapEvent()
+    {
+        // 5% chance per second of triggering  a random map event
+        int roll = randomEventRng.nextInt(100); // 0–99
+        if (roll < 5) {
+            triggerRandomMapEvent();
+            randomEventCooldown = RANDOM_EVENT_COOLDOWN;
+        }
+    }
+
+    private void triggerRandomMapEvent()
+    {
+        //sends flow to RandomMapEventController to handle rest of random map event
+        DialogData root = RandomMapEventController.getInstance().getRandomEvent();
+
+        AdventureQuestController.instance().enqueueDialog(root, MapStage.getInstance());
+    }
+
+    public void startBattleAgainst(EnemyData enemyData, boolean isDangerousEnemy, boolean isHighStakes)
+    {
+        //method to create a duel when you have an EnemyData object instead of an EnemySprite object
+        if (enemyData == null) {
+            System.out.println("startBattleAgainst called with null EnemyData");
+            return;
+        }
+
+        PlayerSprite player = getPlayerSprite();
+        if (player == null) {
+            System.out.println("no PlayerSprite available.");
+            return;
+        }
+
+        WorldSave.getCurrentSave().autoSave();
+
+        EnemySprite mob = new EnemySprite(-999, enemyData);
+
+        DuelScene duelScene = DuelScene.instance();
+        if(isDangerousEnemy)
+        {
+            mob.setDangerousEventBattle(true);
+            PaperCard startingPerm = pickRandomPermanentFromEnemyDeck(enemyData);
+            mob.setStartingPermanent(startingPerm);
+            this.currentMob = mob;
+
+            if (startingPerm != null)
+            {
+                duelScene.setDangerousEnemyStartCardName(startingPerm.getName());
+            }
+        }
+        if(isHighStakes)
+        {
+            mob.setHighStakesBattle(true);
+            duelScene.setHighStakes(true);
+            this.currentMob = mob;
+        }
+        if(isDangerousEnemy && isHighStakes)
+        {
+            //should never happen!
+            System.out.println("Error! tried to make duel with BOTH isDangerousEnemy and isHighStakes");
+            return;
+        }
+        duelScene.initDuels(player, mob);
+        Forge.switchScene(duelScene);
+    }
+
+    private PaperCard pickRandomPermanentFromEnemyDeck(EnemyData enemyData) {
+        // Pool of candidate permanents
+        java.util.List<PaperCard> pool = new java.util.ArrayList<>();
+
+        // For each deck file the enemy can use
+        for (String deckPath : enemyData.deck) {
+            try {
+                // This mirrors what EnemyData.generateDeck does
+                Deck deck = CardUtil.getDeck(
+                        deckPath,
+                        true,                     // add basic lands if needed (same as existing usage)
+                        false,                    // isFantasyMode; adventure may pass false here
+                        enemyData.colors,
+                        enemyData.life > 13,
+                        false                     // useGeneticAI; not needed for sampling
+                );
+
+                CardPool main = deck.getMain();  // <- this is your CardPool
+
+                // Iterate over distinct cards in the main deck
+                for (Map.Entry<PaperCard, Integer> entry : main) {
+                    PaperCard pc = entry.getKey();
+                    int copies = entry.getValue() != null ? entry.getValue() : 0;
+
+                    if (pc == null || copies <= 0) {
+                        continue;
+                    }
+                    if (!isPermanentCard(pc)) {
+                        continue;
+                    }
+
+                    // Weight random choice by number of copies
+                    for (int i = 0; i < copies; i++) {
+                        pool.add(pc);
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        if (pool.isEmpty()) {
+            return null;
+        }
+
+        return Aggregates.random(pool);
+    }
+
+    private boolean isPermanentCard(PaperCard pc) {
+        if (pc == null) {
+            return false;
+        }
+        CardRules rules = pc.getRules();
+        if (rules == null) {
+            return false;
+        }
+        CardType type = rules.getType();
+        if (type == null) {
+            return false;
+        }
+
+        return type.isLand()
+                || type.isCreature()
+                || type.isArtifact()
+                || type.isEnchantment()
+                || type.isPlaneswalker();
+    }
+
+    public void onMobTradeFinished(EnemySprite mob, boolean removeMob) {
+        if (removeMob) {
+            removeEnemy(mob);
+        }
+        collided = false;
+        Forge.advFreezePlayerControls = false;
     }
 
     private void removeEnemy(EnemySprite currentMob) {
@@ -164,40 +341,85 @@ public class WorldStage extends GameStage implements SaveFileContent {
     @Override
     public void setWinner(boolean playerIsWinner, boolean isArena) {
         if (playerIsWinner) {
-            currentMob.clearCollisionHeight();
+            final EnemySprite mob = currentMob;
+            final boolean isDangerousEvent = (mob != null && mob.isDangerousEventBattle());
+            final boolean isHighStakesEvent = (mob != null && mob.isHighStakesBattle());
+
+            if (mob != null) {
+                mob.clearCollisionHeight();
+            }
             Current.player().win();
             player.setAnimation(CharacterSprite.AnimationTypes.Attack);
-            currentMob.playEffect(Paths.EFFECT_BLOOD, 0.5f);
+            if (mob != null) {
+                mob.playEffect(Paths.EFFECT_BLOOD, 0.5f);
+            }
             Timer.schedule(new Timer.Task() {
                 @Override
                 public void run() {
-                    currentMob.setAnimation(CharacterSprite.AnimationTypes.Death);
-                    currentMob.resetCollisionHeight();
+                    if (mob != null) {
+                        mob.setAnimation(CharacterSprite.AnimationTypes.Death);
+                        mob.resetCollisionHeight();
+                    }
                     startPause(0.3f, () -> {
-                        RewardScene.instance().loadRewards(currentMob.getRewards(), RewardScene.Type.Loot, null);
-                        WorldStage.this.removeEnemy(currentMob);
-                        AdventureQuestController.instance().updateQuestsWin(currentMob);
-                        AdventureQuestController.instance().showQuestDialogs(MapStage.getInstance());
-                        Forge.switchScene(RewardScene.instance());
-                        currentMob = null;
+                        if (isDangerousEvent)
+                        {
+                            AdventureQuestController.instance().updateQuestsWin(currentMob);
+                            AdventureQuestController.instance().showQuestDialogs(MapStage.getInstance());
+                            RandomMapEventController.getInstance().openDangerousEnemyRewards();
+                            currentMob = null;
+                        }
+                        else if(isHighStakesEvent)
+                        {
+                            AdventureQuestController.instance().updateQuestsWin(currentMob);
+                            AdventureQuestController.instance().showQuestDialogs(MapStage.getInstance());
+                            RandomMapEventController.getInstance().openHighStakesRewards();
+                            currentMob = null;
+                        }
+                        else
+                        {
+                            RewardScene.instance().loadRewards(currentMob.getRewards(), RewardScene.Type.Loot, null);
+                            WorldStage.this.removeEnemy(currentMob);
+                            AdventureQuestController.instance().updateQuestsWin(currentMob);
+                            AdventureQuestController.instance().showQuestDialogs(MapStage.getInstance());
+                            Forge.switchScene(RewardScene.instance());
+                            currentMob = null;
+                        }
                     });
                 }
             }, 1f);
         } else {
-            currentMob.clearCollisionHeight();
+            final EnemySprite mob = currentMob;
+            final boolean isDangerousEvent = (mob != null && mob.isDangerousEventBattle());
+            final boolean isHighStakesEvent = (mob != null && mob.isHighStakesBattle());
+
+            if (mob != null) {
+                mob.clearCollisionHeight();
+            }
             player.setAnimation(CharacterSprite.AnimationTypes.Hit);
             currentMob.setAnimation(CharacterSprite.AnimationTypes.Attack);
-            startPause(0.5f, () -> {
-                currentMob.resetCollisionHeight();
+            startPause(0.5f, () ->
+            {
+                if(mob != null)
+                {
+                    currentMob.resetCollisionHeight();
+                }
+                if(isHighStakesEvent)
+                {
+                    AdventurePlayer player = AdventurePlayer.current();
+                    player.takeGold(player.getGold()/2);
+                }
                 boolean defeated = Current.player().defeated();
                 AdventureQuestController.instance().updateQuestsLose(currentMob);
                 AdventureQuestController.instance().showQuestDialogs(MapStage.getInstance());
                 boolean defeatedFromBoss = currentMob.getData().boss && !isArena;
                 WorldStage.this.removeEnemy(currentMob);
                 currentMob = null;
-                if (defeated) {
+                if (defeated)
+                {
                     WorldStage.getInstance().resetPlayerLocation();
-                } else if (defeatedFromBoss) {
+                }
+                else if (defeatedFromBoss)
+                {
                     WorldStage.getInstance().defeatedFromBoss();
                 }
             });

@@ -21,6 +21,7 @@ public class ConfigData {
     public DifficultyData[] difficulties;
     public RewardData legalCards;
     public String[] restrictedCards;
+    public String[] bannedCards;
     public String[] restrictedEditions;
     public String[] allowedEditions;
     public String[] restrictedEvents;

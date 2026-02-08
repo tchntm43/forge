@@ -1,9 +1,9 @@
 [metadata]
 Name=mummy
 [Main]
-2 Binding Mummy|AKR|1
+2 Binding Mummy|AKH|1
 2 Compulsory Rest|AKH|1
-2 Disposal Mummy|AKR|1
+2 Disposal Mummy|HOU|1
 2 Dutiful Servants|HOU|1
 2 Fan Bearer|GNT|1
 2 Festering Mummy|AKH|1
@@ -11,7 +11,7 @@ Name=mummy
 2 Gravedigger|AKH|1
 3 Grind // Dust|HOU|1
 4 Isolated Chapel|DMR|1
-3 Miasmic Mummy|AKR|1
+3 Miasmic Mummy|AKH|1
 3 Mummy Paramount|HOU|1
 4 Plains|AKH|2
 4 Shineshadow Snarl|STX|1

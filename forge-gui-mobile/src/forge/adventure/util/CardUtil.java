@@ -1,6 +1,7 @@
 package forge.adventure.util;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.google.common.collect.Iterables;
 import forge.StaticData;
@@ -8,15 +9,18 @@ import forge.adventure.data.ConfigData;
 import forge.adventure.data.GeneratedDeckData;
 import forge.adventure.data.GeneratedDeckTemplateData;
 import forge.adventure.data.RewardData;
+import forge.adventure.player.AdventurePlayer;
 import forge.card.*;
 import forge.card.DeckHints.Type;
 import forge.card.mana.ManaCost;
 import forge.card.mana.ManaCostShard;
+import forge.deck.CardPool;
 import forge.deck.Deck;
 import forge.deck.DeckSection;
 import forge.deck.DeckgenUtil;
 import forge.deck.io.DeckSerializer;
 import forge.game.GameFormat;
+import forge.gamemodes.quest.io.ReadPriceList;
 import forge.item.BoosterPack;
 import forge.item.PaperCard;
 import forge.item.SealedTemplate;
@@ -294,11 +298,28 @@ public class CardUtil {
         }
     }
 
-    public static List<PaperCard> getPredicateResult(Iterable<PaperCard> cards, final RewardData data) {
+    // Adventure/Quest shared card price map (loaded from all-prices.txt + booster-prices.txt)
+    private static Map<String, Integer> sCardPriceMap = null;
+
+    private static Map<String, Integer> getSharedCardPriceMap() {
+        if (sCardPriceMap == null) {
+            // ReadPriceList already merges QUEST_CARD_PRICE_FILE and PRICES_BOOSTER_FILE
+            sCardPriceMap = new ReadPriceList().getPriceList();
+        }
+        return sCardPriceMap;
+    }
+
+    public static List<PaperCard> getPredicateResult(Iterable<PaperCard> cards, final RewardData data)
+    {
         List<PaperCard> result = new ArrayList<>();
         CardPredicate pre = new CardPredicate(data, true);
 
-        for (final PaperCard item : cards) {
+        for (final PaperCard item : cards)
+        {
+            if (CardUtil.isBanned(item)) {
+                continue;
+            }
+
             if (pre.test(item))
                 result.add(item);
         }
@@ -332,6 +353,15 @@ public class CardUtil {
         if (card == null)
             return 0;
 
+        //New code here to get specific card prices from all-prices.txt
+        Map<String, Integer> priceMap = getSharedCardPriceMap();
+        String nameKey = card.getName();
+        Integer val = priceMap.get(nameKey);
+        if (val != null) {
+            return val;
+        }
+        //end of new code
+
         return switch (card.getRarity()) {
             case BasicLand -> 5;
             case Common -> 50;
@@ -340,6 +370,83 @@ public class CardUtil {
             case MythicRare -> 500;
             default -> 600;
         };
+    }
+
+    public static boolean isBanned(String cardName)
+    {
+        ConfigData configData = Config.instance().getConfigData();
+        String[] banned = configData.bannedCards;
+        if (banned == null || cardName == null)
+        {
+            return false;
+        }
+        for (String b : banned) {
+            if (cardName.equalsIgnoreCase(b))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isBanned(PaperCard pc)
+    {
+        return pc != null && isBanned(pc.getName());
+    }
+
+    public static String[] getBannedList()
+    {
+        return Config.instance().getConfigData().bannedCards;
+    }
+
+    public static void filterBannedFromPool(List<PaperCard> pool) {
+        if (pool == null) {
+            return;
+        }
+        pool.removeIf(pc -> pc == null || isBanned(pc.getName()));
+    }
+
+    public static boolean isRestricted(String cardName) {
+        ConfigData configData = Config.instance().getConfigData();
+        String[] banned = configData.restrictedCards;
+        if (banned == null || cardName == null) {
+            return false;
+        }
+        for (String b : banned) {
+            if (cardName.equalsIgnoreCase(b)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isRestricted(PaperCard pc)
+    {
+        return pc != null && isRestricted(pc.getName());
+    }
+
+    public static boolean hasRestricted(CardPool cardPool)
+    {
+        for(Map.Entry<PaperCard, Integer> entry : cardPool)
+        {
+            if(isRestricted(entry.getKey()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean hasRestricted(Array<PaperCard> pool)
+    {
+        for(PaperCard card : pool)
+        {
+            if(isRestricted(card))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static int getRewardPrice(Reward reward) {
@@ -674,7 +781,13 @@ public class CardUtil {
     }
 
     public static Deck getDeck(String path, boolean forAI, boolean isFantasyMode, String colors, boolean isTheme,
-            boolean useGeneticAI, CardEdition starterEdition, boolean discourageDuplicates) {
+            boolean useGeneticAI, CardEdition starterEdition, boolean discourageDuplicates)
+    {
+        //debugging tests, remove later
+        System.out.println("deck path = " + path);
+        System.out.println("useGeneticAI = " + useGeneticAI);
+        System.out.println("isFantasyMode = " + isFantasyMode);
+
         if (path.endsWith(".dck")) {
             FileHandle fileHandle = Config.instance().getFile(path);
             Deck deck = null;

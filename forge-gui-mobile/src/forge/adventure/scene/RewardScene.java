@@ -28,6 +28,7 @@ import forge.sound.SoundEffectType;
 import forge.sound.SoundSystem;
 import forge.util.ItemPool;
 
+import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -44,6 +45,12 @@ public class RewardScene extends UIScene {
     private static RewardScene object;
 
     private PointOfInterestChanges changes;
+
+    //Variables for handling trading using RewardScene
+    private boolean selectionOnly = false;
+    private boolean allowFewerSelections = false;
+    private Array<Reward> selectedRewards = new Array<>();
+    private int maxSelections = 0;
 
     public static RewardScene instance() {
         if (object == null)
@@ -68,6 +75,14 @@ public class RewardScene extends UIScene {
     ItemPool<PaperCard> collectionPool = null;
     private int remainingSelections = 0;
 
+    public void setRemainingSelections(int n)
+    {
+        if(n >= 0)
+        {
+            remainingSelections = n;
+        }
+    }
+
     private RewardScene() {
         super(Forge.isLandscapeMode() ? "ui/items.json" : "ui/items_portrait.json");
 
@@ -82,6 +97,7 @@ public class RewardScene extends UIScene {
         detailButton.setVisible(false);
         doneButton = ui.findActor("done");
         restockButton = ui.findActor("restock");
+        ui.findActor("rewards_background").setVisible(true);
     }
 
     @Override
@@ -280,6 +296,7 @@ public class RewardScene extends UIScene {
         clearGenerated();
 
         ShopData data = shopActor.getShopData();
+        applyShopRarityPattern(data);
         Array<Reward> ret = new Array<>();
 
         long shopSeed = changes.getShopSeed(shopActor.getObjectId());
@@ -289,6 +306,71 @@ public class RewardScene extends UIScene {
         }
         shopActor.setRewardData(ret);
         loadRewards(ret, RewardScene.Type.Shop, shopActor);
+    }
+
+    private void applyShopRarityPattern(ShopData data) {
+        if (data == null || data.rewards == null || data.rewards.size == 0) {
+            return;
+        }
+
+        // Collect existing card-type reward templates (card/randomCard/deckCard)
+        Array<RewardData> cardTemplates = new Array<>();
+        for (RewardData rd : data.rewards) {
+            if (rd == null) continue;
+            String t = rd.type;
+            if (t == null || t.isEmpty()
+                    || t.equals("card")
+                    || t.equals("randomCard")
+                    || t.equals("deckCard")) {
+                cardTemplates.add(rd);
+            }
+        }
+
+        if (cardTemplates.size == 0) {
+            return;
+        }
+
+        // Use the first card-type RewardData as the base template for this shop's cards
+        RewardData base = cardTemplates.get(0);
+
+        Array<RewardData> newRewards = new Array<>();
+
+        // Keep any non-card rewards from the original list
+        for (RewardData rd : data.rewards) {
+            if (rd == null) continue;
+            String t = rd.type;
+            if (t != null && !t.isEmpty()
+                    && !t.equals("card")
+                    && !t.equals("randomCard")
+                    && !t.equals("deckCard")) {
+                newRewards.add(rd);
+            }
+        }
+
+        // Helper to create a RewardData that generates 'count' cards of a given rarity set
+        java.util.function.BiConsumer<String[], Integer> addBatch = (rarityArr, count) -> {
+            RewardData clone = new RewardData(base); // copy constructor
+            clone.count = count;       // exact number of cards from this batch
+            clone.addMaxCount = 0;     // no extra random copies
+            clone.rarity = rarityArr;  // rarity filter
+            newRewards.add(clone);
+        };
+
+        // Slot group 1: 1 card → Rare or MythicRare (10% mythic)
+        int roll = WorldSave.getCurrentSave().getWorld().getRandom().nextInt(10); // 0–9
+        if (roll == 0) {
+            addBatch.accept(new String[] { "MythicRare" }, 1);
+        } else {
+            addBatch.accept(new String[] { "Rare" }, 1);
+        }
+
+        // Slot group 2: 2 cards → Uncommons
+        addBatch.accept(new String[] { "Uncommon" }, 2);
+
+        // Slot group 3: 5 cards → Commons
+        addBatch.accept(new String[] { "Common" }, 5);
+
+        data.rewards = newRewards;
     }
 
     public void loadRewards(Deck deck, Type type, ShopActor shopActor, boolean noSell) {
@@ -315,6 +397,26 @@ public class RewardScene extends UIScene {
             this.collectionPool.clear();
 
         this.collectionPool.addAllFlat(AdventurePlayer.current().getCollectionCards(true).toFlatList());
+    }
+
+    public void configureChoiceMode(int maxSelections, boolean allowFewer, boolean selectionOnly) {
+        this.maxSelections = maxSelections;
+        this.remainingSelections = maxSelections;
+        this.allowFewerSelections = allowFewer;
+        this.selectionOnly = selectionOnly;
+        this.selectedRewards.clear();
+    }
+
+    public Array<Reward> getSelectedRewards() {
+        return selectedRewards;
+    }
+
+    public void resetChoiceMode() {
+        selectionOnly = false;
+        allowFewerSelections = false;
+        maxSelections = 0;
+        selectedRewards.clear();
+        remainingSelections = 0;
     }
 
     public void loadRewards(Array<Reward> newRewards, Type type, ShopActor shopActor) {
@@ -365,6 +467,14 @@ public class RewardScene extends UIScene {
                 }
             }
         });
+
+        //check to unload Nomads Bazaar background because it has been overriding the others for some reason
+        Actor nm_bg = ui.findActor("nomadsbazaar_background");
+        if (nm_bg != null)
+        {
+            nm_bg.setVisible(false);
+        }
+
         if (type == Type.Shop) {
             String shopName = shopActor.getDescription();
             if (shopName != null && !shopName.isEmpty()) {
@@ -425,9 +535,21 @@ public class RewardScene extends UIScene {
                 break;
             case RewardChoice:
                 restockButton.setVisible(false);
-                headerLabel.setVisible(remainingSelections > 0);
-                headerLabel.setText(Forge.getLocalizer().getMessage("lblSelectRewards", remainingSelections));
-                doneButton.setDisabled(remainingSelections > 0);
+
+                if (allowFewerSelections)
+                {
+                    headerLabel.setVisible(true);
+                    int max = (maxSelections > 0) ? maxSelections : remainingSelections;
+                    headerLabel.setText("Select up to " + max + " cards"); // simple English text
+                    doneButton.setDisabled(false);
+                }
+                else
+                {
+                    headerLabel.setVisible(remainingSelections > 0);
+                    headerLabel.setText(Forge.getLocalizer().getMessage("lblSelectRewards", remainingSelections));
+                    doneButton.setDisabled(remainingSelections > 0);
+                }
+                break;
         }
         for (int h = 1; h < targetHeight; h++) {
             cardHeight = h;
@@ -657,18 +779,29 @@ public class RewardScene extends UIScene {
             setX(actor.getX());
             setY(actor.getY() - getHeight());
 
-            setText("Pick Reward");
+            setText("");
             updateOwned();
             addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    if (remainingSelections >= 1) {
+                    if (remainingSelections >= 1)
+                    {
 
                         remainingSelections--;
-                        Current.player().addReward(rewardActor.getReward());
+
+                        if (selectionOnly) {
+                            Reward chosen = rewardActor.getReward();
+                            if (!selectedRewards.contains(chosen, true))
+                            {
+                                selectedRewards.add(chosen);
+                            }
+                        }
+                        else
+                        {
+                            Current.player().addReward(rewardActor.getReward());
+                        }
 
                         headerLabel.setVisible(remainingSelections > 0);
-                        headerLabel.setText("Select " + remainingSelections + " rewards");
                         doneButton.setDisabled(remainingSelections > 0);
 
                         Gdx.input.vibrate(5);

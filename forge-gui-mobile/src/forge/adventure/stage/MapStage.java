@@ -722,6 +722,7 @@ public class MapStage extends GameStage {
                         shopsAlreadyPresent.add(data.name);
                         Array<Reward> ret = new Array<>();
                         WorldSave.getCurrentSave().getWorld().getRandom().setSeed(changes.getShopSeed(id));
+                        applyShopRarityPattern(data);
                         for (RewardData rdata : new Array.ArrayIterator<>(data.rewards)) {
                             ret.addAll(rdata.generate(false, false));
                         }
@@ -758,6 +759,72 @@ public class MapStage extends GameStage {
         if(localInnID == -1)
             return null;
         return InnScene.instance(TileMapScene.instance(), TileMapScene.instance().rootPoint.getID(), changes, localInnID);
+    }
+
+    private void applyShopRarityPattern(ShopData data) {
+        if (data == null || data.rewards == null || data.rewards.size == 0) {
+            return;
+        }
+
+        // Collect existing card-type reward templates (card/randomCard/deckCard)
+        Array<RewardData> cardTemplates = new Array<>();
+        for (RewardData rd : data.rewards) {
+            if (rd == null) continue;
+            String t = rd.type;
+            if (t == null || t.isEmpty()
+                    || t.equals("card")
+                    || t.equals("randomCard")
+                    || t.equals("deckCard")) {
+                cardTemplates.add(rd);
+            }
+        }
+
+        if (cardTemplates.size == 0) {
+            return;
+        }
+
+        // Use the first card-type RewardData as the base template for this shop's cards
+        RewardData base = cardTemplates.get(0);
+
+        Array<RewardData> newRewards = new Array<>();
+
+        // Keep any non-card rewards from the original list
+        for (RewardData rd : data.rewards) {
+            if (rd == null) continue;
+            String t = rd.type;
+            if (t != null && !t.isEmpty()
+                    && !t.equals("card")
+                    && !t.equals("randomCard")
+                    && !t.equals("deckCard")) {
+                newRewards.add(rd);
+                System.out.println("[ShopRarity] Preserving non-card reward type=" + t);
+            }
+        }
+
+        // Helper to create a RewardData that generates 'count' cards of a given rarity set
+        java.util.function.BiConsumer<String[], Integer> addBatch = (rarityArr, count) -> {
+            RewardData clone = new RewardData(base); // copy constructor
+            clone.count = count;       // exact number of cards from this batch
+            clone.addMaxCount = 0;     // no extra random copies
+            clone.rarity = rarityArr;  // rarity filter
+            newRewards.add(clone);
+        };
+
+        // Slot group 1: 1 card → Rare or MythicRare (10% mythic)
+        int roll = WorldSave.getCurrentSave().getWorld().getRandom().nextInt(10); // 0–9
+        if (roll == 0) {
+            addBatch.accept(new String[] { "MythicRare" }, 1);
+        } else {
+            addBatch.accept(new String[] { "Rare" }, 1);
+        }
+
+        // Slot group 2: 2 cards → Uncommons
+        addBatch.accept(new String[] { "Uncommon" }, 2);
+
+        // Slot group 3: 5 cards → Commons
+        addBatch.accept(new String[] { "Common" }, 5);
+
+        data.rewards = newRewards;
     }
 
     public boolean exitDungeon(boolean defeated, boolean defeatedByBoss) {

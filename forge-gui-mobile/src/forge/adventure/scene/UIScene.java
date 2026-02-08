@@ -221,6 +221,23 @@ public class UIScene extends Scene {
         possibleSelectionStack.add(ui.selectActors);
         screenImage = ui.findActor("lastScreen");
         stage.addActor(ui);
+
+        //new code, helper function to avoid scenes showing the wrong backgrounds
+        hideAllBackgrounds();
+    }
+
+    protected void hideAllBackgrounds()
+    {
+        if (ui == null) return;
+
+        for (Actor actor : ui.getChildren())
+        {
+            String name = actor.getName();
+            if (name != null && name.endsWith("_background"))
+            {
+                actor.setVisible(false);
+            }
+        }
     }
 
     public void removeDialog() {

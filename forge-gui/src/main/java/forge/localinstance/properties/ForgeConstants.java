@@ -298,7 +298,7 @@ public final class ForgeConstants {
     public static final String CACHE_TOURNAMENTPACK_PICS_DIR = PICS_DIR + "tournamentpacks" + PATH_SEPARATOR;
     public static final String CACHE_PLANECHASE_PICS_DIR     = PICS_DIR + "planechase" + PATH_SEPARATOR;
     public static final String CACHE_ACHIEVEMENTS_DIR        = PICS_DIR + "achievements" + PATH_SEPARATOR;
-    public static final String QUEST_CARD_PRICE_FILE         = DB_DIR + "all-prices.txt";
+    public static final String QUEST_CARD_PRICE_FILE         = QUEST_DIR + "all-prices.txt";
 
     public static final String[] PROFILE_DIRS = {
             USER_DIR,

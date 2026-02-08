@@ -232,7 +232,16 @@ public class MapDialog {
                         B = Controls.newTextButton(name);
                         B.setDisabled(true);
                     } else {
-                        B = Controls.newTextButton(name, () -> loadDialog(option));
+                        // make a final reference for use inside the lambda
+                        DialogData currentOption = option;
+                        B = Controls.newTextButton(name, () -> {
+                            // 🔹 Run per-option callback, if present
+                            if (currentOption.callback != null) {
+                                currentOption.callback.accept(null);
+                            }
+                            // 🔹 Then continue with normal dialog behavior
+                            loadDialog(currentOption);
+                        });
                     }
                     B.getTextraLabel().setWrap(true); //We want this to wrap in case it's a wordy choice.
                     buttons.add(B);

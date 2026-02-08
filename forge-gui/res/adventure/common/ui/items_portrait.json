@@ -18,6 +18,27 @@
       "height": 480
     },
     {
+      "type": "Image",
+      "name": "nomadsbazaar_background",
+      "image": "ui/nomadsbazaar_portrait.png",
+      "width": 270,
+      "height": 480
+    },
+    {
+      "type": "Image",
+      "name": "trade_background",
+      "image": "ui/trade_portrait.png",
+      "width": 480,
+      "height": 270
+    },
+    {
+      "type": "Image",
+      "name": "duplicate_background",
+      "image": "ui/duplicate_portrait.png",
+      "width": 480,
+      "height": 270
+    },
+    {
       "name": "cards",
       "x": 5,
       "y": 20,

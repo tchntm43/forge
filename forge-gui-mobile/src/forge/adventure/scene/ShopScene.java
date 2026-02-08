@@ -48,7 +48,8 @@ public class ShopScene extends ForgeScene {
     }
 
     @Override
-    public FScreen getScreen() {
+    public FScreen getScreen()
+    {
         return screen == null ? screen = new AdventureDeckEditor(true) : screen;
     }
 

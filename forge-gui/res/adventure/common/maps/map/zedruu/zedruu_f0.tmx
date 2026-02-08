@@ -62,8 +62,6 @@
   <object id="176" template="../../obj/waypoint.tx" x="215.342" y="355.605"/>
   <object id="178" template="../../obj/enemy.tx" x="332.175" y="105.438">
    <properties>
-    <property name="effect">{ &quot;startBattleWithCard&quot;: [ &quot;Tome of the Infinite&quot;,&quot;Thayan Evokers&quot;]
-}</property>
     <property name="enemy" value="Conjurer"/>
     <property name="reward">[
   {

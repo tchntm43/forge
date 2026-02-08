@@ -103,6 +103,38 @@ public class EnemySprite extends CharacterSprite implements Steerable<Vector2> {
         initializeBaseMovementBehavior();
     }
 
+    private boolean dangerousEventBattle = false;
+    private boolean highStakesBattle = false;
+    private PaperCard startingPermanent;
+
+    public boolean isDangerousEventBattle()
+    {
+        return dangerousEventBattle;
+    }
+
+    public void setDangerousEventBattle(boolean dangerousEventBattle)
+    {
+        this.dangerousEventBattle = dangerousEventBattle;
+    }
+
+    public boolean isHighStakesBattle()
+    {
+        return highStakesBattle;
+    }
+
+    public void setHighStakesBattle(boolean highStakesBattle)
+    {
+        this.highStakesBattle = highStakesBattle;
+    }
+
+    public PaperCard getStartingPermanent() {
+        return startingPermanent;
+    }
+
+    public void setStartingPermanent(PaperCard startingPermanent) {
+        this.startingPermanent = startingPermanent;
+    }
+
     public void parseWaypoints(String waypoints){
         String[] wp = waypoints.replaceAll("\\s", "").split(",");
         for (String s : wp) {

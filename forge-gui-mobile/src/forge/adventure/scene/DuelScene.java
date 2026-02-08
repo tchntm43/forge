@@ -76,7 +76,8 @@ public class DuelScene extends ForgeScene {
     FOptionPane bossDialogue;
     List<IPaperCard> playerExtras = new ArrayList<>();
     List<IPaperCard> AIExtras = new ArrayList<>();
-
+    private String dangerousEnemyStartCardName;
+    private boolean highStakes;
 
     private DuelScene() {
     }
@@ -88,6 +89,19 @@ public class DuelScene extends ForgeScene {
 
     public boolean hasCallbackExit() {
         return callbackExit;
+    }
+
+    public void setDangerousEnemyStartCardName(String cardName) {
+        this.dangerousEnemyStartCardName = cardName;
+    }
+
+    public void setHighStakes(boolean isHighStakes)
+    {
+        this.highStakes = isHighStakes;
+    }
+    public boolean isHighStakes()
+    {
+        return this.highStakes;
     }
 
     public void GameEnd() {
@@ -277,6 +291,14 @@ public class DuelScene extends ForgeScene {
                 playerEffects.add(dungeonEffect.opponent);
         }
 
+        //If this is a "High Stakes" random map event battle
+        //No bonuses from items, no starting cards, no bonus life or anything else
+        //Then add effects so that both players start with 20 life.
+        if(isHighStakes())
+        {
+            playerEffects.clear();
+        }
+
         addEffects(humanPlayer, playerEffects);
 
         currentEnemy = enemy.getData();
@@ -332,6 +354,29 @@ public class DuelScene extends ForgeScene {
                     }
                 }
             }
+
+            //If this is a "Dangerous Enemy" random map event battle
+            if (dangerousEnemyStartCardName != null && !dangerousEnemyStartCardName.isEmpty()) {
+                EffectData e = new EffectData();
+                e.startBattleWithCard = new String[] { dangerousEnemyStartCardName };
+                oppEffects.add(e);
+
+                dangerousEnemyStartCardName = null;
+            }
+
+            //If this is a "High Stakes" random map event battle
+            //No bonuses from items, no starting cards, no bonus life or anything else
+            //Then add effects so that both players start with 20 life.
+            if(isHighStakes())
+            {
+                oppEffects.clear();
+                equipmentEffects.clear();
+
+                humanPlayer.setStartingLife(20);
+                aiPlayer.setStartingLife(20);
+                setHighStakes(false);
+            }
+
             addEffects(aiPlayer, oppEffects);
             addEffects(aiPlayer, equipmentEffects);
 

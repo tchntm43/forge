@@ -490,4 +490,14 @@ public class CardPool extends ItemPool<PaperCard> {
         }
         return filteredPool;
     }
+
+    public int size()
+    {
+        int count = 0;
+        for(Map.Entry<PaperCard, Integer> entry : this)
+        {
+            count++;
+        }
+        return count;
+    }
 }
