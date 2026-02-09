@@ -3,14 +3,14 @@
 Hi, all. Here are source files for my mods to Forge. There are a lot of changes, new files, etc. A brief summary of what is different in my mod:
 
 - Added random map events. These include:
---> An enemy guards a hoard of valuable spells. Defeat this enemy to get card rewards. Enemy gets to start with a random card from their deck on the battlefield. Reward is rares/mythics, or rarely a random restricted card.
---> A merchant sells stolen goods. This is a shop that exclusively sells rares and mythics, at price discount. No refresh available.
---> An enemy challenges you to a duel. Fair fight, no starting cards, both at 20 life. Win 3000 gold on win, lose half of gold on loss (penalty probably too heavy and may be changed later)
---> Nomad's Bazaar: Buy any non-restricted card. Prices are higher than shops.
---> Random gold reward
---> Random non-restricted card reward
---> River event, inflicts a minor penalty on player, but you have choice over the penalty.
---> Duplicate card event, trade shards for duplicating any card you own. The cost is 25 shards for non-restricted cards, and 200 shards for restricted cards.
+-- An enemy guards a hoard of valuable spells. Defeat this enemy to get card rewards. Enemy gets to start with a random card from their deck on the battlefield. Reward is rares/mythics, or rarely a random restricted card.
+-- A merchant sells stolen goods. This is a shop that exclusively sells rares and mythics, at price discount. No refresh available.
+-- An enemy challenges you to a duel. Fair fight, no starting cards, both at 20 life. Win 3000 gold on win, lose half of gold on loss (penalty probably too heavy and may be changed later)
+-- Nomad's Bazaar: Buy any non-restricted card. Prices are higher than shops.
+-- Random gold reward
+-- Random non-restricted card reward
+-- River event, inflicts a minor penalty on player, but you have choice over the penalty.
+-- Duplicate card event, trade shards for duplicating any card you own. The cost is 25 shards for non-restricted cards, and 200 shards for restricted cards.
 - Added Trading: 1 in 5 monsters on the world map want to trade instead of dueling. It does not apply to monsters in dungeons. Cards they have available for trade are influenced by what you offer. If you have a restricted list card for trade, 50% chance they offer 1 restricted list card as well.
 - Added Trade Binder: In deck editor, this is located below the Auto-sell. You can move cards from your inventory to the trade binder. You can still trade with an empty trade binder, but it's a lot more clunky.
 - Modified chest/book rewards. Each has a low chance of instead offering 1 random restricted card.
