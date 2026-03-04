@@ -558,7 +558,7 @@
         "type": "item",
         "probability": 0.3,
         "count": 1,
-        "itemName": "Dragon Blood"
+        "itemName": "Dragon Blood Necklace"
       }
     ],
     "colors": "U",
@@ -816,7 +816,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Serra's Shield"
+        "itemName": "Blessed Halo"
       },
       {
         "type": "card",
@@ -5103,7 +5103,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Yellow Scarves Horseshoe"
+        "itemName": "Yellow Scarves Spear"
       },
       {
         "type": "shards",
@@ -5248,7 +5248,7 @@
   },
   {
     "name": "Copper Host Brutalizer",
-    "sprite": "sprites/enemy/aberration/copperhostbrutalizer.atlas",
+    "sprite": "sprites/enemy/aberration/phyrexian/copperhostbrutalizer.atlas",
     "deck": [
       "decks/miniboss/copperhostbrutalizer.dck"
     ],
@@ -5320,7 +5320,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "War Beast Rider's Boots"
+        "itemName": "War Beast Gauntlet"
       }
     ],
     "colors": "GB",
@@ -5333,7 +5333,7 @@
   },
   {
     "name": "Copper Host Infector",
-    "sprite": "sprites/enemy/aberration/copperhostinfector.atlas",
+    "sprite": "sprites/enemy/aberration/phyrexian/copperhostinfector.atlas",
     "deck": [
       "decks/standard/copperhostinfector.dck"
     ],
@@ -7809,7 +7809,7 @@
   },
   {
     "name": "Dross Gladiator",
-    "sprite": "sprites/enemy/aberration/drossgladiator.atlas",
+    "sprite": "sprites/enemy/aberration/phyrexian/drossgladiator.atlas",
     "deck": [
       "decks/standard/drossgladiator.dck"
     ],
@@ -7888,7 +7888,7 @@
   },
   {
     "name": "Dross Grimnarch",
-    "sprite": "sprites/enemy/aberration/drossgrimnarch.atlas",
+    "sprite": "sprites/enemy/aberration/phyrexian/drossgrimnarch.atlas",
     "deck": [
       "decks/miniboss/drossgrimnarch.dck"
     ],
@@ -10603,7 +10603,7 @@
   },
   {
     "name": "Furnace Goblin",
-    "sprite": "sprites/enemy/aberration/furnacegoblin.atlas",
+    "sprite": "sprites/enemy/aberration/phyrexian/furnacegoblin.atlas",
     "deck": [
       "decks/standard/furnacegoblin.dck"
     ],
@@ -10682,7 +10682,7 @@
   },
   {
     "name": "Furnace Tormentor",
-    "sprite": "sprites/enemy/aberration/furnacetormentor.atlas",
+    "sprite": "sprites/enemy/aberration/phyrexian/furnacetormentor.atlas",
     "deck": [
       "decks/miniboss/furnacetormentor.dck"
     ],
@@ -11050,7 +11050,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Explorer's Boots"
+        "itemName": "Explorer's Hat"
       },
       {
         "type": "gold",
@@ -11178,7 +11178,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Overwhelming Axe"
+        "itemName": "Overwhelming Armor"
       },
       {
         "type": "shards",
@@ -11274,7 +11274,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Vampire Bite"
+        "itemName": "Vampire's Dagger"
       },
       {
         "type": "life",
@@ -11327,6 +11327,12 @@
         "type": "landSketchbookShop",
         "probability": 0.1,
         "count": 1
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Baron Sengir's Trophy"
       }
     ],
     "colors": "GB",
@@ -11852,7 +11858,7 @@
   },
   {
     "name": "Gitaxian Scientist",
-    "sprite": "sprites/enemy/aberration/gitaxianscientist.atlas",
+    "sprite": "sprites/enemy/aberration/phyrexian/gitaxianscientist.atlas",
     "deck": [
       "decks/miniboss/gitaxianscientist.dck"
     ],
@@ -11924,7 +11930,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Infiltrator's Mask"
+        "itemName": "Infiltrator's Knife"
       }
     ],
     "colors": "UG",
@@ -11941,7 +11947,7 @@
   },
   {
     "name": "Gitaxian Underling",
-    "sprite": "sprites/enemy/aberration/gitaxianunderling.atlas",
+    "sprite": "sprites/enemy/aberration/phyrexian/gitaxianunderling.atlas",
     "deck": [
       "decks/standard/gitaxianunderling.dck"
     ],
@@ -12289,7 +12295,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Symbol of the Pit"
+        "itemName": "Lance of Lurking Evil"
       },
       {
         "type": "gold",
@@ -12394,7 +12400,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Worry Beads"
+        "itemName": "Belt of Worry Beads"
       },
       {
         "type": "shards",
@@ -14255,7 +14261,7 @@
       "IdentityGreen",
       "IdentityBlack",
       "BiomeGreen",
-      "Minion"
+      "Leader"
     ]
   },
   {
@@ -15213,7 +15219,7 @@
         "type": "item",
         "probability": 0.2,
         "count": 1,
-        "itemName": "Molten Mantle"
+        "itemName": "Molten Gauntlet"
       },
       {
         "type": "deckCard",
@@ -15272,7 +15278,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Molten Mantle"
+        "itemName": "Molten Gauntlet"
       },
       {
         "type": "life",
@@ -15319,6 +15325,12 @@
         "type": "landSketchbookShop",
         "probability": 0.1,
         "count": 1
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Hydra's Trophy"
       }
     ],
     "colors": "G",
@@ -15746,6 +15758,12 @@
         "type": "landSketchbookShop",
         "probability": 0.1,
         "count": 1
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Arcanis's Trophy"
       }
     ],
     "colors": "UW",
@@ -16087,6 +16105,12 @@
         "type": "landSketchbookShop",
         "probability": 0.1,
         "count": 1
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Empress Galina's Trophy"
       }
     ],
     "colors": "UG",
@@ -16606,7 +16630,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Kobold King's Crown"
+        "itemName": "Kobold King's Blade"
       }
     ],
     "colors": "RB",
@@ -19260,7 +19284,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Disrupting Scepter"
+        "itemName": "Disruptor's Robes"
       },
       {
         "type": "life",
@@ -20107,7 +20131,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Gooey Shoes"
+        "itemName": "Consumptive Vial"
       },
       {
         "type": "gold",
@@ -20816,7 +20840,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Ring of Ma'r\u00fbf"
+        "itemName": "Djinn's Silks"
       }
     ],
     "questTags": [
@@ -21598,7 +21622,7 @@
   },
   {
     "name": "Orthodoxy Angel",
-    "sprite": "sprites/enemy/aberration/phyrexianangel.atlas",
+    "sprite": "sprites/enemy/aberration/phyrexian/phyrexianangel.atlas",
     "deck": [
       "decks/miniboss/shandalar97_phyrexian_angel.dck"
     ],
@@ -21670,7 +21694,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Phyrexian Grimoire"
+        "itemName": "Phyrexian Implant"
       }
     ],
     "colors": "WG",
@@ -21684,7 +21708,7 @@
   },
   {
     "name": "Orthodoxy Duelist",
-    "sprite": "sprites/enemy/aberration/phyrexianduelist.atlas",
+    "sprite": "sprites/enemy/aberration/phyrexian/phyrexianduelist.atlas",
     "deck": [
       "decks/standard/phyrexianduelist.dck"
     ],
@@ -23644,6 +23668,12 @@
         "type": "landSketchbookShop",
         "probability": 0.1,
         "count": 1
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Thallid Lord's Trophy"
       }
     ],
     "colors": "BG",
@@ -24180,7 +24210,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Warren Tender's Cloak"
+        "itemName": "Warren Tender's Baton"
       },
       {
         "type": "shards",
@@ -24233,6 +24263,12 @@
         "type": "landSketchbookShop",
         "probability": 0.1,
         "count": 1
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Squee's Trophy"
       }
     ],
     "colors": "R",
@@ -24341,6 +24377,11 @@
         "probability": 1,
         "count": 1,
         "cardName": "Toxin Sliver|LGN"
+      },
+      {
+        "type": "life",
+        "probability": 1,
+        "count": 1
       }
     ],
     "colors": "BGRUW",
@@ -24495,7 +24536,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Winter Boots"
+        "itemName": "Winter Cap"
       }
     ],
     "colors": "UG",
@@ -25106,7 +25147,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Map to the Vale"
+        "itemName": "Crown of the Vale"
       },
       {
         "type": "shards",
@@ -25305,7 +25346,7 @@
       },
       {
         "type": "item",
-        "itemName": "Attendant's Robes"
+        "itemName": "Attendant's Prayerbook"
       },
       {
         "type": "shards",
@@ -25778,6 +25819,12 @@
         "probability": 1,
         "count": 1,
         "cardName": "Island|PGRU"
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Teferi's Trophy"
       }
     ],
     "colors": "WU",
@@ -25821,7 +25868,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Joven's Tools"
+        "itemName": "Joven's Boots"
       },
       {
         "type": "shards",
@@ -25938,7 +25985,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Crown of Madness"
+        "itemName": "Armor of Madness"
       },
       {
         "type": "shards",
@@ -25991,6 +26038,12 @@
         "type": "landSketchbookShop",
         "probability": 0.1,
         "count": 1
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Specter King's Trophy"
       }
     ],
     "colors": "R",
@@ -28073,7 +28126,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Hivecaller's Helm"
+        "itemName": "Hivecaller's Staff"
       },
       {
         "type": "shards",
@@ -28132,6 +28185,12 @@
         "type": "landSketchbookShop",
         "probability": 0.1,
         "count": 1
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Xira's Trophy"
       }
     ],
     "colors": "BGR",
@@ -28254,7 +28313,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Crowcaller's Charm"
+        "itemName": "Storm Gauntlet"
       },
       {
         "type": "shards",
@@ -28338,6 +28397,12 @@
         "probability": 1,
         "count": 1,
         "cardName": "Island|UGL"
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Portal Master's Trophy"
       }
     ],
     "colors": "WUBR",
@@ -28660,7 +28725,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Cave Diver's Boots"
+        "itemName": "Rhystic Amulet"
       }
     ],
     "colors": "B",
@@ -30516,7 +30581,7 @@
     "colors": "G"
   },
   {
-    "name": "Jakub \u0160lemr '99",
+    "name": "Jakub Šlemr '99",
     "sprite": "sprites/enemy/humanoid/human/warlock/witch.atlas",
     "deck": [
       "decks/standard/wc99_jakub_slemr.dck"
@@ -30648,7 +30713,7 @@
     "colors": "U"
   },
   {
-    "name": "Janosch K\u00fchn '00",
+    "name": "Janosch Kühn '00",
     "sprite": "sprites/enemy/humanoid/elf/shaman.atlas",
     "deck": [
       "decks/standard/wc00_janosch_kuhn.dck"
@@ -32495,7 +32560,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Groundbreaker Boots"
+        "itemName": "Groundbreaker Mace"
       },
       {
         "type": "card",
@@ -32543,7 +32608,7 @@
   },
   {
     "name": "Tsabo Tavoc",
-    "sprite": "sprites/enemy/aberration/drossgrimnarch.atlas",
+    "sprite": "sprites/enemy/aberration/phyrexian/drossgrimnarch.atlas",
     "deck": [
       "decks/miniboss/tsabo_tavoc.dck"
     ],
@@ -32639,7 +32704,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Ashnod's Battle Gear"
+        "itemName": "Ashnod's Greaves"
       },
       {
         "type": "card",
@@ -32693,7 +32758,7 @@
   },
   {
     "name": "Gix",
-    "sprite": "sprites/enemy/aberration/phyrexianduelist.atlas",
+    "sprite": "sprites/enemy/aberration/phyrexian/phyrexianduelist.atlas",
     "deck": [
       "decks/miniboss/gix.dck"
     ],
@@ -32791,12 +32856,12 @@
       },
       {
         "type": "item",
-        "itemName": "Copper Angel's Amulet"
+        "itemName": "Copper Angel's Axe"
       }
     ]
   },
   {
-    "name": "M\u00e1rton Stromgald",
+    "name": "Márton Stromgald",
     "sprite": "sprites/enemy/humanoid/human/knight/cavalier_2.atlas",
     "deck": [
       "decks/miniboss/marton_stromgald.dck"
@@ -32810,7 +32875,7 @@
     "rewards": [
       {
         "type": "card",
-        "cardName": "M\u00e1rton Stromgald|ICE"
+        "cardName": "Márton Stromgald|ICE"
       },
       {
         "type": "card",
@@ -32968,7 +33033,7 @@
       },
       {
         "type": "item",
-        "itemName": "Map to Paradise",
+        "itemName": "Circlet of Paradise",
         "count": 1,
         "probability": 1
       },
@@ -33088,7 +33153,7 @@
       },
       {
         "type": "item",
-        "itemName": "Ivy Seer's Amulet"
+        "itemName": "Ivy Seer's Tome"
       }
     ]
   },
@@ -33131,7 +33196,7 @@
       },
       {
         "type": "item",
-        "itemName": "Multani's Boots"
+        "itemName": "Mask of Multani"
       }
     ]
   },
@@ -33227,7 +33292,7 @@
       },
       {
         "type": "item",
-        "itemName": "Ankh of Purgatory"
+        "itemName": "Purgatory Priest's Robes"
       }
     ]
   },
@@ -33274,7 +33339,7 @@
       },
       {
         "type": "item",
-        "itemName": "Paladin's Greaves"
+        "itemName": "Paladin's Shield"
       }
     ]
   },
@@ -33417,7 +33482,7 @@
       },
       {
         "type": "item",
-        "itemName": "Barrin's Codex"
+        "itemName": "Barrin's Robes"
       }
     ]
   },
@@ -33537,6 +33602,7 @@
     "difficulty": 0.1,
     "speed": 30,
     "life": 60,
+    "gamesPerMatch": 3,
     "rewards": [
       {
         "type": "gold",
@@ -33554,13 +33620,13 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Armor of Yawgmoth"
+        "itemName": "Scythe of Yawgmoth"
       },
       {
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Eye of Yawgmoth"
+        "itemName": "Yawgmoth's Armor"
       },
       {
         "type": "life",
@@ -33640,6 +33706,7 @@
     "difficulty": 0.1,
     "speed": 30,
     "life": 60,
+    "gamesPerMatch": 3,
     "rewards": [
       {
         "type": "gold",
@@ -33657,7 +33724,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Sulfuric Staff"
+        "itemName": "Sulfuric Amulet"
       },
       {
         "type": "landSketchbookShop",
@@ -34708,7 +34775,7 @@
     ],
     "ai": "",
     "boss": true,
-    "spawnRate": 0.3,
+    "spawnRate": 0,
     "difficulty": 0.8,
     "speed": 20,
     "life": 40,
@@ -34742,22 +34809,27 @@
         "count": 1
       },
       {
-        "type": "card",
+        "type": "deckCard",
         "probability": 1,
-        "count": 1,
-        "cardName": "Rainbow Knights|PAST"
-      },
-      {
-        "type": "card",
-        "probability": 1,
-        "count": 1,
-        "cardName": "Prismatic Dragon|PAST"
+        "count": 2
       },
       {
         "type": "card",
         "probability": 1,
         "count": 1,
         "cardName": "Armageddon|LEA"
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Windwalker's Blessing"
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Sainted One's Trophy"
       }
     ],
     "colors": "W",
@@ -34852,7 +34924,7 @@
     ],
     "ai": "",
     "boss": true,
-    "spawnRate": 0.3,
+    "spawnRate": 0,
     "difficulty": 0.8,
     "speed": 20,
     "life": 40,
@@ -34886,16 +34958,27 @@
         "count": 1
       },
       {
-        "type": "card",
+        "type": "deckCard",
         "probability": 1,
-        "count": 1,
-        "cardName": "Whimsy|PAST"
+        "count": 1
       },
       {
         "type": "card",
         "probability": 1,
         "count": 1,
         "cardName": "Psionic Blast|LEA"
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Windwalker's Blessing"
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Astral Visionary's Trophy"
       }
     ],
     "colors": "U",
@@ -34990,7 +35073,7 @@
     ],
     "ai": "",
     "boss": true,
-    "spawnRate": 0.3,
+    "spawnRate": 0,
     "difficulty": 0.8,
     "speed": 20,
     "life": 40,
@@ -35011,7 +35094,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Amulet of Azar"
+        "itemName": "Staff of Azar"
       },
       {
         "type": "life",
@@ -35024,16 +35107,27 @@
         "count": 1
       },
       {
-        "type": "card",
+        "type": "deckCard",
         "probability": 1,
-        "count": 1,
-        "cardName": "Necropolis of Azar|PAST"
+        "count": 1
       },
       {
         "type": "card",
         "probability": 1,
         "count": 1,
         "cardName": "Mind Twist|LEA"
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Windwalker's Blessing"
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Lichlord's Trophy"
       }
     ],
     "colors": "B",
@@ -35128,7 +35222,7 @@
     ],
     "ai": "",
     "boss": true,
-    "spawnRate": 0.3,
+    "spawnRate": 0,
     "difficulty": 0.8,
     "speed": 20,
     "life": 40,
@@ -35162,10 +35256,9 @@
         "count": 1
       },
       {
-        "type": "card",
+        "type": "deckCard",
         "probability": 1,
-        "count": 1,
-        "cardName": "Orcish Catapult|PAST"
+        "count": 1
       },
       {
         "type": "card",
@@ -35178,6 +35271,18 @@
         "probability": 1,
         "count": 1,
         "cardName": "Nalathni Dragon|DRC94"
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Windwalker's Blessing"
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Dragon Lord's Trophy"
       }
     ],
     "colors": "R",
@@ -35272,7 +35377,7 @@
     ],
     "ai": "",
     "boss": true,
-    "spawnRate": 0.3,
+    "spawnRate": 0,
     "difficulty": 0.8,
     "speed": 20,
     "life": 40,
@@ -35306,22 +35411,27 @@
         "count": 1
       },
       {
-        "type": "card",
+        "type": "deckCard",
         "probability": 1,
-        "count": 1,
-        "cardName": "Faerie Dragon|PAST"
-      },
-      {
-        "type": "card",
-        "probability": 1,
-        "count": 1,
-        "cardName": "Aswan Jaguar|PAST"
+        "count": 2
       },
       {
         "type": "card",
         "probability": 1,
         "count": 1,
         "cardName": "Birds of Paradise|LEA"
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Windwalker's Blessing"
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Great Druid's Trophy"
       }
     ],
     "colors": "G",
@@ -35349,16 +35459,10 @@
     "life": 24,
     "rewards": [
       {
-        "type": "card",
+        "type": "deckCard",
         "probability": 1,
-        "count": 1,
-        "cardName": "Rainbow Knights|PAST"
-      },
-      {
-        "type": "card",
-        "probability": 1,
-        "count": 1,
-        "cardName": "Aswan Jaguar|PAST"
+        "count": 2,
+        "addMaxCount": 3
       },
       {
         "type": "gold",
@@ -35401,16 +35505,10 @@
     "life": 24,
     "rewards": [
       {
-        "type": "card",
+        "type": "deckCard",
         "probability": 1,
-        "count": 1,
-        "cardName": "Whimsy|PAST"
-      },
-      {
-        "type": "card",
-        "probability": 1,
-        "count": 1,
-        "cardName": "Call from the Grave|PAST"
+        "count": 2,
+        "addMaxCount": 3
       },
       {
         "type": "gold",
@@ -35459,16 +35557,10 @@
     "life": 24,
     "rewards": [
       {
-        "type": "card",
+        "type": "deckCard",
         "probability": 1,
-        "count": 1,
-        "cardName": "Power Struggle|PAST"
-      },
-      {
-        "type": "card",
-        "probability": 1,
-        "count": 1,
-        "cardName": "Goblin Polka Band|PAST"
+        "count": 2,
+        "addMaxCount": 3
       },
       {
         "type": "gold",
@@ -35517,16 +35609,10 @@
     "life": 24,
     "rewards": [
       {
-        "type": "card",
+        "type": "deckCard",
         "probability": 1,
-        "count": 1,
-        "cardName": "Necropolis of Azar|PAST"
-      },
-      {
-        "type": "card",
-        "probability": 1,
-        "count": 1,
-        "cardName": "Faerie Dragon|PAST"
+        "count": 2,
+        "addMaxCount": 3
       },
       {
         "type": "gold",
@@ -35575,16 +35661,10 @@
     "life": 24,
     "rewards": [
       {
-        "type": "card",
+        "type": "deckCard",
         "probability": 1,
-        "count": 1,
-        "cardName": "Prismatic Dragon|PAST"
-      },
-      {
-        "type": "card",
-        "probability": 1,
-        "count": 1,
-        "cardName": "Orcish Catapult|PAST"
+        "count": 2,
+        "addMaxCount": 3
       },
       {
         "type": "gold",
@@ -35668,10 +35748,9 @@
         "cardName": "City of Brass|ARN"
       },
       {
-        "type": "card",
+        "type": "deckCard",
         "probability": 1,
-        "count": 1,
-        "cardName": "Gem Bazaar|PAST"
+        "count": 1
       },
       {
         "type": "card",
@@ -35760,7 +35839,7 @@
       {
         "type": "item",
         "probability": 1,
-        "itemName": "Guard's Armor"
+        "itemName": "Guard's Shield"
       },
       {
         "type": "gold",
@@ -36176,7 +36255,7 @@
       "Necromancer",
       "IdentityBlack"
     ],
-    "nameOverride": "Lim-D\u00fbl, the Necromancer"
+    "nameOverride": "Lim-Dûl, the Necromancer"
   },
   {
     "name": "Chandler",
@@ -36648,7 +36727,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Breathstealer's Robe"
+        "itemName": "Breathstealer's Blade"
       }
     ],
     "colors": "B",
@@ -36777,7 +36856,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Dementia Mask"
+        "itemName": "Ichor Knife"
       }
     ],
     "colors": "B",
@@ -36909,7 +36988,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Bog Glider Greaves"
+        "itemName": "Bog Glider Glove"
       }
     ],
     "colors": "B",
@@ -37073,7 +37152,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Garments of Gaea"
+        "itemName": "Amulet of Gaea"
       },
       {
         "type": "life",
@@ -37246,6 +37325,12 @@
         "probability": 1,
         "count": 200,
         "addMaxCount": 100
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Time Walker's Trophy"
       }
     ],
     "colors": "U",
@@ -37267,7 +37352,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Lump of Coal"
+        "itemName": "Krampus's Horns"
       }
     ],
     "colors": "BR",
@@ -37292,7 +37377,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Christmas Gift"
+        "itemName": "Santa's Hat"
       },
       {
         "type": "card",
@@ -37438,10 +37523,9 @@
         "cardName": "Rakavolver|APC"
       },
       {
-        "type": "card",
+        "type": "deckCard",
         "probability": 1,
-        "count": 1,
-        "cardName": "Gem Bazaar|PAST"
+        "count": 1
       },
       {
         "type": "card",
@@ -37511,7 +37595,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Kry Shield"
+        "itemName": "Kry Greaves"
       },
       {
         "type": "card",
@@ -37557,7 +37641,7 @@
         "type": "item",
         "probability": 1,
         "count": 1,
-        "itemName": "Ring of Immortals"
+        "itemName": "Immortal Anklet"
       },
       {
         "type": "card",

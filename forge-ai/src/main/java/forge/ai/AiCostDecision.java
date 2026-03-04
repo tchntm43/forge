@@ -18,11 +18,11 @@ import forge.game.zone.ZoneType;
 import forge.util.Aggregates;
 import forge.util.TextUtil;
 import forge.util.collect.FCollectionView;
-import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.*;
 
 import static forge.ai.ComputerUtilCard.getBestCreatureAI;
+import static forge.ai.ComputerUtilCard.getWorstCreatureAI;
 
 public class AiCostDecision extends CostDecisionMakerBase {
     private final CardCollection discarded;
@@ -55,6 +55,14 @@ public class AiCostDecision extends CostDecisionMakerBase {
         CardCollectionView hand = player.getCardsIn(cost.getRevealFrom());
         hand = CardLists.getValidCards(hand, type.split(";"), player, source, ability);
         return hand.isEmpty() ? null : PaymentDecision.card(getBestCreatureAI(hand));
+    }
+
+    @Override
+    public PaymentDecision visit(CostBeholdExile cost) {
+        final String type = cost.getType();
+        CardCollectionView hand = player.getCardsIn(cost.getRevealFrom());
+        hand = CardLists.getValidCards(hand, type.split(";"), player, source, ability);
+        return hand.isEmpty() ? null : PaymentDecision.card(getWorstCreatureAI(hand));
     }
 
     @Override
@@ -424,8 +432,9 @@ public class AiCostDecision extends CostDecisionMakerBase {
             return PaymentDecision.card(source);
         }
 
-        final CardCollection typeList = CardLists.getValidCards(player.getGame().getCardsIn(ZoneType.Battlefield),
+        CardCollection typeList = CardLists.getValidCards(player.getGame().getCardsIn(ZoneType.Battlefield),
                 cost.getType().split(";"), player, source, ability);
+        typeList = CardLists.filter(typeList, CardPredicates.canReceiveCounters(cost.getCounter()));
 
         Card card;
         if (cost.getType().equals("Creature.YouCtrl")) {
@@ -574,7 +583,7 @@ public class AiCostDecision extends CostDecisionMakerBase {
     @Override
     public PaymentDecision visit(CostRemoveAnyCounter cost) {
         final int c = cost.getAbilityAmount(ability);
-        final Card originalHost = ObjectUtils.getIfNull(ability.getOriginalHost(), source);
+        final Card originalHost = Objects.requireNonNullElse(ability.getOriginalHost(), source);
 
         if (c <= 0) {
             return null;
@@ -850,6 +859,12 @@ public class AiCostDecision extends CostDecisionMakerBase {
             return null;
         }
         return PaymentDecision.card(cardToUnattach.getFirst());
+    }
+
+    @Override
+    public PaymentDecision visit(CostBlight cost) {
+        // This tells the AI: "Treat this like placing counters"
+        return this.visit((CostPutCounter) cost);
     }
 
     @Override

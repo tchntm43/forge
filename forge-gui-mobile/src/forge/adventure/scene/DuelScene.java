@@ -24,8 +24,11 @@ import forge.game.GameRules;
 import forge.game.GameType;
 import forge.game.player.Player;
 import forge.game.player.RegisteredPlayer;
+import forge.game.GameOutcome;
 import forge.gamemodes.match.HostedMatch;
 import forge.gamemodes.quest.QuestUtil;
+import forge.localinstance.properties.ForgePreferences;
+import forge.model.FModel;
 import forge.gui.FThreads;
 import forge.gui.interfaces.IGuiGame;
 import forge.item.IPaperCard;
@@ -70,7 +73,6 @@ public class DuelScene extends ForgeScene {
     boolean arenaBattleChallenge = false;
     boolean isArena = false;
     AdventureEventData eventData;
-    private LoadingOverlay matchOverlay;
     final int enemyAvatarKey = 90001;
     final int playerAvatarKey = 90000;
     FOptionPane bossDialogue;
@@ -121,24 +123,59 @@ public class DuelScene extends ForgeScene {
                     }
                 }
             }
+
+            // Mostly for ante handling, but also blacker lotus
+            GameOutcome.AnteResult anteResult = hostedMatch.getAnteResult(humanPlayer);
+            if (anteResult != null) {
+                if (eventData != null) {
+                    //In an event. Apply the ante result to the current event deck.
+                    eventData.registeredDeck.getOrCreate(DeckSection.Sideboard).add(anteResult.wonCards);
+                    if(eventData.draftedDeck != null)
+                        eventData.draftedDeck.getOrCreate(DeckSection.Sideboard).add(anteResult.wonCards);
+                    for(PaperCard card : anteResult.lostCards) {
+                        eventData.registeredDeck.removeAnteCard(card);
+                        if(eventData.draftedDeck != null)
+                            eventData.draftedDeck.removeAnteCard(card);
+                    }
+                    //Could also add the cards to the opponent's pool, but their games aren't simulated and they never edit their decks.
+                }
+                else {
+                    for (PaperCard card : anteResult.wonCards) {
+                        Current.player().addCard(card);
+                    }
+                    for (PaperCard card : anteResult.lostCards) {
+                        // We could clean this up by trying to combine all the lostCards into a mapping, but good enough for now
+                        Current.player().removeLostCardFromPools(card);
+                    }
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         String enemyName = enemy.getName();
+        String insult = enemy.getBossInsult();
         boolean showMessages = enemy.getData().boss || (enemy.getData().copyPlayerDeck && Current.player().isUsingCustomDeck());
         Current.player().clearBlessing();
         if ((chaosBattle || showMessages) && !winner) {
             final FBufferedImage fb = getFBEnemyAvatar();
             callbackExit = true;
             boolean finalWinner = winner;
-            bossDialogue = createFOption(Forge.getLocalizer().getMessage("AdvBossInsult" + Aggregates.randomInt(1, 44)),
-                    enemyName, fb, () -> {
-                        afterGameEnd(enemyName, finalWinner);
+            if (insult != null){
+            bossDialogue = createFOption((insult), enemyName, fb, () -> {afterGameEnd(enemyName, finalWinner);
                         exitDuelScene();
                         fb.dispose();
                     });
+            }
+            else {
+            	bossDialogue = createFOption(Forge.getLocalizer().getMessage("AdvBossInsult" + Aggregates.randomInt(1, 44)), enemyName, fb, () ->
+            	{afterGameEnd(enemyName, finalWinner);
+                            exitDuelScene();
+                            fb.dispose();
+            	});
+            }
             FThreads.invokeInEdtNowOrLater(() -> bossDialogue.show());
-        } else {
+        }
+            else {
             afterGameEnd(enemyName, winner);
         }
     }
@@ -416,8 +453,8 @@ public class DuelScene extends ForgeScene {
             rules = new GameRules(GameType.Adventure);
             rules.setGamesPerMatch(enemy.getData().gamesPerMatch);
         }
-        rules.setPlayForAnte(false);
-        rules.setMatchAnteRarity(true);
+        rules.setPlayForAnte(FModel.getPreferences().getPrefBoolean(ForgePreferences.FPref.UI_ANTE));
+        rules.setMatchAnteRarity(FModel.getPreferences().getPrefBoolean(ForgePreferences.FPref.UI_ANTE_MATCH_RARITY));
         rules.setManaBurn(false);
         rules.setWarnAboutAICards(false);
 
@@ -425,16 +462,22 @@ public class DuelScene extends ForgeScene {
         hostedMatch.startMatch(rules, appliedVariants, players, guiMap, bossBattle ? MusicPlaylist.BOSS : MusicPlaylist.MATCH);
         MatchController.instance.setGameView(hostedMatch.getGameView());
         boolean showMessages = enemy.getData().boss || (enemy.getData().copyPlayerDeck && Current.player().isUsingCustomDeck());
+        LoadingOverlay matchOverlay;
         if (chaosBattle || showMessages || isDeckMissing) {
             final FBufferedImage fb = getFBEnemyAvatar();
-            bossDialogue = createFOption(isDeckMissing ? isDeckMissingMsg : Forge.getLocalizer().getMessage("AdvBossIntro" + Aggregates.randomInt(1, 35)),
-                    enemy.getName(), fb, fb::dispose);
+            String Intro = enemy.getBossIntro();
+            if (Intro != null){
+                bossDialogue = createFOption((Intro), enemy.getName(), fb, fb::dispose);
+                }
+                else {
+                bossDialogue = createFOption(isDeckMissing ? isDeckMissingMsg : Forge.getLocalizer().getMessage("AdvBossIntro" + Aggregates.randomInt(1, 35)),
+                enemy.getName(), fb, fb::dispose);
+                }
             matchOverlay = new LoadingOverlay(() -> FThreads.delayInEDT(300, () -> FThreads.invokeInEdtNowOrLater(() ->
-                    bossDialogue.show())), false, true);
+            bossDialogue.show())), false, true);
         } else {
             matchOverlay = new LoadingOverlay(null);
         }
-
         for (final Player p : hostedMatch.getGame().getPlayers()) {
             if (p.getController() instanceof PlayerControllerHuman) {
                 final PlayerControllerHuman humanController = (PlayerControllerHuman) p.getController();
@@ -526,23 +569,14 @@ public class DuelScene extends ForgeScene {
     private String selectAI(String ai) { //Decide opponent AI.
         String AI = ""; //Use user settings if it's null.
         if (ai != null) {
-            switch (ai.toLowerCase()) { //We use this way to ensure capitalization is exact.
+            AI = switch (ai.toLowerCase()) { //We use this way to ensure capitalization is exact.
                 //We don't want misspellings here.
-                case "default":
-                    AI = "Default";
-                    break;
-                case "reckless":
-                    AI = "Reckless";
-                    break;
-                case "cautious":
-                    AI = "Cautious";
-                    break;
-                case "experimental":
-                    AI = "Experimental";
-                    break;
-                default:
-                    AI = ""; //User settings.
-            }
+                case "default" -> "Default";
+                case "reckless" -> "Reckless";
+                case "cautious" -> "Cautious";
+                case "experimental" -> "Experimental";
+                default -> ""; //User settings.
+            };
         }
         return AI;
     }
