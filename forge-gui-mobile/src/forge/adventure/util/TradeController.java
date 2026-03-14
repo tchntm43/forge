@@ -501,26 +501,27 @@ public final class TradeController
         playerCardsWanted = new Array<>();
         Map<Integer, Integer> cardWeights = new HashMap<>();
 
-        float propWanted = MyRandom.getRandom().nextFloat(0.25f, 0.75f);
-        int numWanted = Math.round(approvedPlayerTradeCards.size * propWanted);
-        if (numWanted <= 0)
-        {
-            numWanted = 1;
-        }
-        if (numWanted > approvedPlayerTradeCards.size)
-        {
-            numWanted = approvedPlayerTradeCards.size;
-        }
+        //maximum number of cards the enemy will be want, closer to 20 for high-value collections, can be 0 for some
+        //low-value collections
+        int numWanted = 20;
 
         int sumWeight = 0;
+
+        //add null card with value 5000, a way to cause low-value binders to have fewer cards the enemy wants
+        approvedPlayerTradeCards.add(null);
+
         for(int i = 0; i < approvedPlayerTradeCards.size; i++)
         {
+            int weight;
             PaperCard card = approvedPlayerTradeCards.get(i);
             if(card == null)
             {
+                weight = 5000;
+                sumWeight += weight;
+                cardWeights.put(i, weight);
                 continue;
             }
-            int weight = CardUtil.getCardPrice(card);
+            weight = CardUtil.getCardPrice(card);
             if (weight <= 0)
             {
                 weight = 1;
@@ -543,8 +544,9 @@ public final class TradeController
             cardWeights.put(i, weight);
         }
 
-        if (cardWeights.isEmpty() || sumWeight <= 0)
+        if (cardWeights.size() == 1 || sumWeight == 5000)
         {
+            //only the null card has been added, there is nothing to trade, abort execution
             return;
         }
 
@@ -560,9 +562,15 @@ public final class TradeController
                 accum += entry.getValue();
                 if(accum >= randomRoll)
                 {
-                    playerCardsWanted.add(approvedPlayerTradeCards.get(entry.getKey()));
-                    sumWeight -= entry.getValue();
-                    it.remove();
+                    PaperCard addCard = approvedPlayerTradeCards.get(entry.getKey());
+                    if(addCard != null)
+                    {
+                        //only add real cards, if null is indicated, no card is added
+                        //remove real cards from consideration, but do not remove null
+                        playerCardsWanted.add(approvedPlayerTradeCards.get(entry.getKey()));
+                        sumWeight -= entry.getValue();
+                        it.remove();
+                    }
                     break;
                 }
             }
@@ -820,6 +828,9 @@ public final class TradeController
             System.out.println("totalPlayerCardValue = " + totalPlayerCardValue);
             System.out.println("totalEnemyCardValue = " + totalEnemyCardValue);
 
+            int startPlayerCardValue = totalPlayerCardValue;
+            int startEnemyCardValue = totalEnemyCardValue;
+
             if(playerPool.size > 0)
             {
                 //add a random card the enemy wants that isn't currently in the trade
@@ -953,6 +964,13 @@ public final class TradeController
             if(enemyPool.size == 0 && enemyCardsWanted.size == 0)
             {
                 //no trade is possible
+                tradeFound = false;
+                break;
+            }
+            //infinite loop breaker
+            if(startPlayerCardValue == totalPlayerCardValue && startEnemyCardValue == totalEnemyCardValue)
+            {
+                //nothing has changed, assume an infinite loop
                 tradeFound = false;
                 break;
             }

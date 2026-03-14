@@ -776,6 +776,9 @@ public class GameAction {
         // Ideally move to should never be called without a prevZone
         // Remove card from Current Zone, if it has one
         final Zone zoneFrom = game.getZoneOf(c);
+        Player owner = c.getOwner();
+        boolean wasTopCard = zoneFrom != null && zoneFrom.getZoneType() == ZoneType.Library &&
+                !owner.getCardsIn(ZoneType.Library).isEmpty() && owner.getCardsIn(ZoneType.Library).get(0).equals(c);
         // String prevName = prev != null ? prev.getZoneName() : "";
 
         // Handle the case that one component of a merged permanent got take to the subgame
@@ -823,6 +826,18 @@ public class GameAction {
 
         if (c.isRealCommander()) {
             c.setMoveToCommandZone(true);
+        }
+
+        //if this moves card from library to anywhere except top card of library, AI should forget knowledge of top card of a library.
+        if(!wasTopCard)
+        {
+            for (Player player : game.getPlayers())
+            {
+                if (player.getController().isAI())
+                {
+                    player.getController().onCardMovedLibraryToGraveyard(owner);
+                }
+            }
         }
 
         return c;
@@ -880,12 +895,52 @@ public class GameAction {
     public final Card moveToLibrary(Card c, int libPosition, SpellAbility cause) {
         return moveToLibrary(c, libPosition, cause, null);
     }
-    public final Card moveToLibrary(Card c, int libPosition, SpellAbility cause, Map<AbilityKey, Object> params) {
-        final PlayerZone library = c.getOwner().getZone(ZoneType.Library);
+    public final Card moveToLibrary(Card c, int libPosition, SpellAbility cause, Map<AbilityKey, Object> params)
+    {
+        Player owner = c.getOwner();
+        final PlayerZone library = owner.getZone(ZoneType.Library);
         if (libPosition == -1 || libPosition > library.size()) {
             libPosition = library.size();
         }
-        return changeZone(game.getZoneOf(c), library, c, libPosition, cause, params);
+        Zone fromZone = game.getZoneOf(c);
+        boolean wasTopCard = fromZone != null && fromZone.getZoneType() == ZoneType.Library &&
+                !owner.getCardsIn(ZoneType.Library).isEmpty() && owner.getCardsIn(ZoneType.Library).get(0).equals(c);
+        Card moved = changeZone(fromZone, library, c, libPosition, cause, params);
+        //for AI Players to store memory of the top card
+        if(libPosition == 0 && fromZone != null)
+        {
+            if(fromZone.getZoneType() != ZoneType.Library &&
+                    fromZone.getZoneType() != ZoneType.Hand)
+            {
+                for (Player player : game.getPlayers())
+                {
+                    if (!player.getController().isAI())
+                    {
+                        continue;
+                    }
+                    player.getController().onKnownCardMovedToLibraryTop(owner, moved);
+                }
+            }
+            else
+            {
+                if(fromZone.getZoneType() == ZoneType.Library && wasTopCard)
+                {
+                    //don't change any information about AI knowledge of top card
+                }
+                else
+                {
+                    for (Player player : game.getPlayers())
+                    {
+                        if (!player.getController().isAI())
+                        {
+                            continue;
+                        }
+                        player.getController().onUnknownCardMovedToLibraryTop(owner);
+                    }
+                }
+            }
+        }
+        return moved;
     }
 
     public final Card moveToVariantDeck(Card c, ZoneType zone, int deckPosition, SpellAbility cause, Map<AbilityKey, Object> params) {

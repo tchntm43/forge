@@ -124,6 +124,7 @@ public class NomadsBazaarScene extends UIScene
             instance = null;
             Actor bazaarBg = ui.findActor("nomadsbazaar_background");
             bazaarBg.setVisible(false);
+            Forge.advFreezePlayerControls = false;
             Forge.switchToLast();
         });
     }

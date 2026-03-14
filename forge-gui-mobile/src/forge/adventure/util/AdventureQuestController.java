@@ -273,6 +273,22 @@ public class AdventureQuestController implements Serializable {
         }
     }
 
+    public void enqueueDialogAndShowNow(DialogData dialog, MapStage stage)
+    {
+        //Use only for random map events
+        //this is a fix to prevent sprite movement between queueing event and executing it
+        dialogQueue.add(dialog);
+        if(activeDialog == null && !dialogQueue.isEmpty())
+        {
+            displayNextDialog(stage);
+        }
+    }
+
+    public boolean hasPendingDialogs()
+    {
+        return activeDialog != null || (dialogQueue != null && !dialogQueue.isEmpty());
+    }
+
     public static class DistanceSort implements Comparator<PointOfInterest>
     {
         //ToDo: Make this more generic, compare PoI, mobs, random points, and player position

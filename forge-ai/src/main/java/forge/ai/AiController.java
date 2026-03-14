@@ -892,10 +892,16 @@ public class AiController {
         return AiPlayDecision.WillPlay;
     }
 
-    public AiPlayDecision canPlaySa(SpellAbility sa) {
+    public AiPlayDecision canPlaySa(SpellAbility sa)
+    {
         if (!checkAiSpecificRestrictions(sa)) {
             return AiPlayDecision.CantPlayAi;
         }
+        if (wouldBeCounteredByCounterbalance(sa))
+        {
+            return AiPlayDecision.CantPlayAi;
+        }
+
         if (sa instanceof WrappedAbility) {
             return canPlaySa(((WrappedAbility) sa).getWrappedAbility());
         }
@@ -2377,4 +2383,35 @@ public class AiController {
         return list.get(0);
     }
 
+    private boolean wouldBeCounteredByCounterbalance(SpellAbility sa)
+    {
+        if(!sa.isSpell() || !sa.isCounterableBy(null))
+        {
+            return false;
+        }
+        Set<Card> memorySet = AiCardMemory.getMemorySet(player, MemorySet.OPP_LIBRARY_TOP_CARDS);
+        if(memorySet == null || memorySet.isEmpty())
+        {
+            return false;
+        }
+        for(Player opp : player.getOpponents())
+        {
+            if(opp.getCardsIn(ZoneType.Library).isEmpty())
+            {
+                continue;
+            }
+            boolean hasCounterbalance = opp.getCardsIn(ZoneType.Battlefield)
+                    .anyMatch(CardPredicates.nameEquals("Counterbalance"));
+            for (Card c : memorySet)
+            {
+                if (c.getOwner().equals(opp) && c.getCMC() == sa.getHostCard().getCMC() &&
+                        hasCounterbalance && opp.getCardsIn(ZoneType.Library).get(0).equals(c))
+                {
+                    System.out.println("Opponent disqualified card from consideration because of Counterbalance");
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

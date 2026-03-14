@@ -504,16 +504,54 @@ public class PlayerControllerAi extends PlayerController {
     }
 
     @Override
-    public void reveal(CardCollectionView cards, ZoneType zone, Player owner, String messagePrefix, boolean addSuffix) {
-        for (Card c : cards) {
+    public void reveal(CardCollectionView cards, ZoneType zone, Player owner, String messagePrefix, boolean addSuffix)
+    {
+        for (Card c : cards)
+        {
             AiCardMemory.rememberCard(player, c, AiCardMemory.MemorySet.REVEALED_CARDS);
+        }
+        if(cards.size() > 0 && owner != null && owner.isOpponentOf(player) && zone == ZoneType.Library &&
+           !owner.getCardsIn(ZoneType.Library).isEmpty())
+        {
+            System.out.println("AI is remembering card: " + owner.getCardsIn(ZoneType.Library).get(0));
+            Set<Card> existing = AiCardMemory.getMemorySet(player, AiCardMemory.MemorySet.OPP_LIBRARY_TOP_CARDS);
+            if(existing != null)
+            {
+                for (Card c : new ArrayList<>(existing))
+                {
+                    if (c != null && c.getOwner().equals(owner))
+                    {
+                        AiCardMemory.forgetCard(player, c, AiCardMemory.MemorySet.OPP_LIBRARY_TOP_CARDS);
+                    }
+                }
+            }
+            AiCardMemory.rememberCard(player, owner.getCardsIn(ZoneType.Library).get(0), AiCardMemory.MemorySet.OPP_LIBRARY_TOP_CARDS);
         }
     }
 
     @Override
-    public void reveal(List<CardView> cards, ZoneType zone, PlayerView owner, String messagePrefix, boolean addSuffix) {
-        for (CardView cv : cards) {
+    public void reveal(List<CardView> cards, ZoneType zone, PlayerView owner, String messagePrefix, boolean addSuffix)
+    {
+        for (CardView cv : cards)
+        {
             AiCardMemory.rememberCard(player, player.getGame().findByView(cv), AiCardMemory.MemorySet.REVEALED_CARDS);
+        }
+        Player ownerPlayer = owner == null ? null : player.getGame().getPlayer(owner);
+        if(cards.size() > 0 && owner != null && ownerPlayer.isOpponentOf(player) && zone == ZoneType.Library &&
+                !ownerPlayer.getCardsIn(ZoneType.Library).isEmpty())
+        {
+            Set<Card> existing = AiCardMemory.getMemorySet(player, AiCardMemory.MemorySet.OPP_LIBRARY_TOP_CARDS);
+            if(existing != null)
+            {
+                for (Card c : new ArrayList<>(existing))
+                {
+                    if (c != null && c.getOwner().equals(ownerPlayer))
+                    {
+                        AiCardMemory.forgetCard(player, c, AiCardMemory.MemorySet.OPP_LIBRARY_TOP_CARDS);
+                    }
+                }
+            }
+            AiCardMemory.rememberCard(player, ownerPlayer.getCardsIn(ZoneType.Library).get(0), AiCardMemory.MemorySet.OPP_LIBRARY_TOP_CARDS);
         }
     }
 
@@ -1555,6 +1593,29 @@ public class PlayerControllerAi extends PlayerController {
     }
 
     @Override
+    public void onKnownCardMovedToLibraryTop(Player owner, Card card)
+    {
+        onUnknownCardMovedToLibraryTop(owner);
+        AiCardMemory.rememberCard(player, card, AiCardMemory.MemorySet.OPP_LIBRARY_TOP_CARDS);
+    }
+
+    @Override
+    public void onUnknownCardMovedToLibraryTop(Player owner)
+    {
+        Set<Card> existing = AiCardMemory.getMemorySet(player, AiCardMemory.MemorySet.OPP_LIBRARY_TOP_CARDS);
+        if(existing != null)
+        {
+            for (Card c : new ArrayList<>(existing))
+            {
+                if (c != null && c.getOwner().equals(owner))
+                {
+                    AiCardMemory.forgetCard(player, c, AiCardMemory.MemorySet.OPP_LIBRARY_TOP_CARDS);
+                }
+            }
+        }
+    }
+
+    @Override
     public ICardFace chooseSingleCardFace(SpellAbility sa, List<ICardFace> faces, String message) {
         return SpellApiToAi.Converter.get(sa).chooseCardFace(player, sa, faces);
     }
@@ -1651,5 +1712,23 @@ public class PlayerControllerAi extends PlayerController {
         }
 
         return choices;
+    }
+
+    @Override
+    public void onPlayerShuffleLibrary(Player owner)
+    {
+        onUnknownCardMovedToLibraryTop(owner);
+    }
+
+    @Override
+    public void onPlayerDrawCards(Player owner)
+    {
+        onUnknownCardMovedToLibraryTop(owner);
+    }
+
+    @Override
+    public void onCardMovedLibraryToGraveyard(Player owner)
+    {
+        onUnknownCardMovedToLibraryTop(owner);
     }
 }

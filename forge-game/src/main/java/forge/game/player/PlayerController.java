@@ -351,4 +351,14 @@ public abstract class PlayerController {
     }
 
     public boolean isOrderedZone() { return false; }
+
+    public void onKnownCardMovedToLibraryTop(Player owner, Card card) { }
+
+    public void onUnknownCardMovedToLibraryTop(Player owner) { }
+
+    public void onPlayerShuffleLibrary(Player owner) { }
+
+    public void onPlayerDrawCards(Player owner) { }
+
+    public void onCardMovedLibraryToGraveyard(Player owner) { }
 }

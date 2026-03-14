@@ -98,9 +98,16 @@ public class WorldStage extends GameStage implements SaveFileContent {
                 }
                 EnemySprite mob = pair.getValue();
 
-                if (!currentModifications.containsKey(PlayerModification.Hide)) {
+                if (!currentModifications.containsKey(PlayerModification.Hide))
+                {
                     enemyMoveVector.set(player.getX(), player.getY()).sub(mob.pos());
                     enemyMoveVector.setLength(mob.speed() * delta);
+                    float distance = player.pos().dst(mob.pos());
+                    float tileDistance = distance / WorldSave.getCurrentSave().getWorld().getTileSize();
+                    if(tileDistance < 3 && enemyAfraid(mob))
+                    {
+                        enemyMoveVector.scl(-1f);
+                    }
                     tempBoundingRect.set(mob.getX() + enemyMoveVector.x, mob.getY() + enemyMoveVector.y, mob.getWidth(), mob.getHeight() * mob.getCollisionHeight());
 
                     if (!mob.getData().flying && WorldSave.getCurrentSave().getWorld().collidingTile(tempBoundingRect))//if direct path is not possible
@@ -113,11 +120,15 @@ public class WorldStage extends GameStage implements SaveFileContent {
                             {
                                 mob.moveBy(0, enemyMoveVector.y);
                             }
-                        } else {
+                        }
+                        else
+                        {
 
                             mob.moveBy(enemyMoveVector.x, 0);
                         }
-                    } else {
+                    }
+                    else
+                    {
                         mob.moveBy(enemyMoveVector.x, enemyMoveVector.y);
                     }
                 }
@@ -185,22 +196,63 @@ public class WorldStage extends GameStage implements SaveFileContent {
         collided = false;
     }
 
+    private boolean enemyAfraid(EnemySprite mob)
+    {
+        Pair<Integer, Integer> record = Current.player().getStatistic().getWinLossRecord().get(mob.getName());
+        if(record == null)
+        {
+            return false;
+        }
+        if(record.getLeft() + record.getRight() >= 5 && record.getLeft() >= record.getRight() * 3)
+        {
+            return true;
+        }
+        return false;
+    }
+
     private void rollRandomMapEvent()
     {
         // 5% chance per second of triggering  a random map event
         int roll = randomEventRng.nextInt(100); // 0–99
         if (roll < 5) {
             triggerRandomMapEvent();
-            randomEventCooldown = RANDOM_EVENT_COOLDOWN;
         }
     }
 
     private void triggerRandomMapEvent()
     {
+        System.out.println("entered triggerRandomMapEvent method");
+        Forge.advFreezePlayerControls = true;
+        if(!canTriggerRandomMapEvents())
+        {
+            System.out.println("cancelled random map event");
+            return;
+        }
+        randomEventCooldown = RANDOM_EVENT_COOLDOWN;
         //sends flow to RandomMapEventController to handle rest of random map event
         DialogData root = RandomMapEventController.getInstance().getRandomEvent();
 
-        AdventureQuestController.instance().enqueueDialog(root, MapStage.getInstance());
+        AdventureQuestController.instance().enqueueDialogAndShowNow(root, MapStage.getInstance());
+    }
+
+    private boolean canTriggerRandomMapEvents()
+    {
+        if(AdventureQuestController.instance().hasPendingDialogs())
+        {
+            System.out.println("hasPendingDialogs = true");
+            return false;
+        }
+        if(collided)
+        {
+            System.out.println("collided = true");
+            return false;
+        }
+        if(currentMob != null)
+        {
+            System.out.println("currentMob != null");
+            return false;
+        }
+        return true;
     }
 
     public void startBattleAgainst(EnemyData enemyData, boolean isDangerousEnemy, boolean isHighStakes)

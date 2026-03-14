@@ -141,6 +141,15 @@ public class RandomMapEventController
             }
         };
 
+        opt2.callback = new Consumer()
+        {
+            @Override
+            public void accept(Object ignored)
+            {
+                Forge.advFreezePlayerControls = false;
+            }
+        };
+
         root.options = new DialogData[]{opt1, opt2};
         return root;
     }
@@ -395,6 +404,16 @@ public class RandomMapEventController
                 openThiefMerchantShop();
             }
         };
+
+        opt2.callback = new Consumer()
+        {
+            @Override
+            public void accept(Object ignored)
+            {
+                Forge.advFreezePlayerControls = false;
+            }
+        };
+
         return root;
     }
 
@@ -435,6 +454,15 @@ public class RandomMapEventController
             }
         };
 
+        opt2.callback = new Consumer()
+        {
+            @Override
+            public void accept(Object ignored)
+            {
+                Forge.advFreezePlayerControls = false;
+            }
+        };
+
         root.options = new DialogData[]{opt1, opt2};
         return root;
     }
@@ -464,6 +492,16 @@ public class RandomMapEventController
                 openNomadsBazaar();
             }
         };
+
+        opt2.callback = new Consumer()
+        {
+            @Override
+            public void accept(Object ignored)
+            {
+                Forge.advFreezePlayerControls = false;
+            }
+        };
+
         return root;
     }
 
@@ -480,10 +518,13 @@ public class RandomMapEventController
 
         root.options = new DialogData[]{ opt1};
 
-        opt1.callback = new Consumer() {
+        opt1.callback = new Consumer()
+        {
             @Override
-            public void accept(Object ignored) {
+            public void accept(Object ignored)
+            {
                 AdventurePlayer.current().addGoldp(goldAmount);
+                Forge.advFreezePlayerControls = false;
             }
         };
 
@@ -509,22 +550,31 @@ public class RandomMapEventController
 
         root.options = new DialogData[]{ opt1, opt2, opt3};
 
-        opt1.callback = new Consumer() {
+        opt1.callback = new Consumer()
+        {
             @Override
-            public void accept(Object ignored) {
+            public void accept(Object ignored)
+            {
                 AdventurePlayer.current().takeGold(goldLost);
+                Forge.advFreezePlayerControls = false;
             }
         };
-        opt2.callback = new Consumer() {
+        opt2.callback = new Consumer()
+        {
             @Override
-            public void accept(Object ignored) {
+            public void accept(Object ignored)
+            {
                 AdventurePlayer.current().takeShards(shardsLost);
+                Forge.advFreezePlayerControls = false;
             }
         };
-        opt3.callback = new Consumer() {
+        opt3.callback = new Consumer()
+        {
             @Override
-            public void accept(Object ignored) {
+            public void accept(Object ignored)
+            {
                 AdventurePlayer.current().loseLife(lifeLost);
+                Forge.advFreezePlayerControls = false;
             }
         };
 
@@ -543,9 +593,11 @@ public class RandomMapEventController
 
         root.options = new DialogData[]{opt1};
 
-        opt1.callback = new Consumer() {
+        opt1.callback = new Consumer()
+        {
             @Override
-            public void accept(Object ignored) {
+            public void accept(Object ignored)
+            {
                 obtainLostCard();
             }
         };
@@ -661,6 +713,15 @@ public class RandomMapEventController
             public void accept(Object ignored) {
                 AdventurePlayer.current().takeShards(200);
                 startCardDuplicator(true);
+            }
+        };
+
+        opt3.callback = new Consumer()
+        {
+            @Override
+            public void accept(Object ignored)
+            {
+                Forge.advFreezePlayerControls = false;
             }
         };
 

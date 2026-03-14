@@ -461,11 +461,25 @@ public class RewardScene extends UIScene {
         this.type = type;
         doneClicked = false;
         updateCollectionPool();
-        if (type == Type.Shop) {
+        if (type == Type.Shop)
+        {
             this.shopActor = shopActor;
-            this.changes = shopActor.getMapStage().getChanges();
+            this.changes = null;
+            try
+            {
+                if(shopActor != null && shopActor.getMapStage() != null)
+                {
+                    this.changes = shopActor.getMapStage().getChanges();
+                }
+            }
+            catch (Exception ignored)
+            {
+                this.changes = null;
+            }
             addToSelectable(restockButton);
-        } else {
+        }
+        else
+        {
             doneButton.setText("[+OK]");
         }
         for (Actor actor : new Array.ArrayIterator<>(generated)) {
@@ -641,7 +655,7 @@ public class RewardScene extends UIScene {
         for (Reward reward : new Array.ArrayIterator<>(newRewards)) {
             boolean skipCard = false;
             if (type == Type.Shop) {
-                if (changes.wasCardBought(shopActor.getObjectId(), i)) {
+                if (changes != null && changes.wasCardBought(shopActor.getObjectId(), i)) {
                     skipCard = true;
                 }
             }

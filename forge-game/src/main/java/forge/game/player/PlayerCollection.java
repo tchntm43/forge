@@ -18,11 +18,13 @@ public class PlayerCollection extends FCollection<Player> {
     public PlayerCollection() {
     }
     
-    public PlayerCollection(Iterable<Player> players) {
+    public PlayerCollection(Iterable<Player> players)
+    {
         this.addAll(players); 
     }
 
-    public PlayerCollection(Player player) {
+    public PlayerCollection(Player player)
+    {
         this.add(player);
     }
 

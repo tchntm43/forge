@@ -1172,6 +1172,16 @@ public class Player extends GameEntity implements Comparable<Player> {
                 game.getAction().revealTo(e.getValue(), e.getKey(), "Revealing cards drawn from ");
             }
         }
+
+        //AI should forget any known top card when cards are drawn
+        for(Player player : game.getPlayers())
+        {
+            if(player.getController().isAI())
+            {
+                player.getController().onPlayerDrawCards(this);
+            }
+        }
+
         return drawn;
     }
 
@@ -1610,7 +1620,8 @@ public class Player extends GameEntity implements Comparable<Player> {
         return topCards;
     }
 
-    public final void shuffle(final SpellAbility sa) {
+    public final void shuffle(final SpellAbility sa)
+    {
         final CardCollection list = new CardCollection(getCardsIn(ZoneType.Library));
 
         // Note: Shuffling once is sufficient.
@@ -1622,6 +1633,15 @@ public class Player extends GameEntity implements Comparable<Player> {
         final Map<AbilityKey, Object> runParams = AbilityKey.mapFromPlayer(this);
         runParams.put(AbilityKey.Source, sa);
         game.getTriggerHandler().runTrigger(TriggerType.Shuffled, runParams, false);
+
+        //ai opponents forget top card, if applicable
+        for(Player player : game.getPlayers())
+        {
+            if(player.getController().isAI())
+            {
+                player.getController().onPlayerShuffleLibrary(this);
+            }
+        }
 
         // Play the shuffle sound
         game.fireEvent(new GameEventShuffle(this));

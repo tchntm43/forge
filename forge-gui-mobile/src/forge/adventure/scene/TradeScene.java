@@ -580,7 +580,7 @@ public class TradeScene extends UIScene
                     public void clicked(InputEvent event, float xx, float yy)
                     {
                         toggleRightCardButton(cardButton);
-                        checkNextButton(enemyCardButtons, enemyCardButtons);
+                        checkNextButton(playerCardButtons, enemyCardButtons);
                     }
                 });
 
