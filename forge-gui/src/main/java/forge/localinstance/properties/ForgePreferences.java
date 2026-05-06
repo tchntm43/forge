@@ -72,11 +72,11 @@ public class ForgePreferences extends PreferencesStore<ForgePreferences.FPref> {
         BRAWL_P6_DECK_STATE(""),
         BRAWL_P7_DECK_STATE(""),
         BRAWL_P8_DECK_STATE(""),
+
         UI_LANDSCAPE_MODE ("false"),
         UI_MATCHES_PER_GAME("3"),
         UI_APPLIED_VARIANTS(""),
         UI_COMPACT_MAIN_MENU ("false"),
-        UI_USE_OLD ("false"),
         UI_RANDOM_FOIL ("false"),
         UI_ENABLE_AI_CHEATS ("false"),
         UI_AVATARS ("0,1"),
@@ -103,8 +103,10 @@ public class ForgePreferences extends PreferencesStore<ForgePreferences.FPref> {
         UI_SR_OPTIMIZE ("false"),
         UI_OPEN_PACKS_INDIV ("false"),
         UI_STACK_CREATURES ("false"),
+        UI_SEPARATE_COMBAT_STACKS("false"),
+        UI_GROUP_PERMANENTS ("default"),
+        UI_MAX_STACK_DEPTH ("4"),
         UI_TOKENS_IN_SEPARATE_ROW("false"),
-        UI_UPLOAD_DRAFT ("false"),
         UI_SCALE_LARGER ("true"),
         UI_RENDER_BLACK_BORDERS ("true"),
         UI_LARGE_CARD_VIEWERS ("false"),
@@ -115,33 +117,24 @@ public class ForgePreferences extends PreferencesStore<ForgePreferences.FPref> {
         UI_SMALL_DECK_VIEWER ("false"),
         UI_DETAILED_SPELLDESC_IN_PROMPT ("true"),
         UI_GRAY_INACTIVE_TEXT ("true"),
-        UI_CARD_SIZE ("small"),
         UI_SINGLE_CARD_ZOOM("false"),
         UI_LIBGDX_TEXTURE_FILTERING("true"),
         UI_ANTE ("false"),
         UI_ANTE_MATCH_RARITY ("false"),
+        UI_ANTE_INCLUDE_BASIC_LANDS ("false"),
         UI_SKIN ("Default"),
         UI_CJK_FONT (""),
-        UI_PREFERRED_AVATARS_ONLY ("false"),
         UI_TARGETING_OVERLAY ("2"),
         UI_TIMED_TARGETING_OVERLAY_UPDATES ("true"),
-        UI_ENABLE_SOUNDS ("true"),
-        UI_ENABLE_MUSIC ("true"),
-        UI_VOL_SOUNDS ("100"),
-        UI_VOL_MUSIC ("100"),
-        UI_ALT_SOUND_SYSTEM ("false"),
-        UI_CURRENT_SOUND_SET("Default"),
-        UI_CURRENT_MUSIC_SET("Default"),
         UI_CURRENT_AI_PROFILE ("Default"),
         UI_CLONE_MODE_SOURCE ("false"),
         UI_MATCH_IMAGE_VISIBLE ("true"),
-        UI_THEMED_COMBOBOX ("true"), // Now applies to all theme settings, not just Combo.
         UI_LOCK_TITLE_BAR ("false"),
-        UI_HIDE_GAME_TABS ("false"), // Visibility of tabs in match screen.
+        UI_HIDE_GAME_TABS ("false"),
         UI_MULTIPLAYER_FIELD_LAYOUT ("OFF"),
         UI_MULTIPLAYER_FIELD_PANELS ("SPLIT"),
         UI_CLOSE_ACTION ("NONE"),
-        UI_MANA_LOST_PROMPT ("false"), // Prompt on losing mana when passing priority
+        UI_MANA_LOST_PROMPT ("false"),
         UI_STACK_EFFECT_NOTIFICATION_POLICY ("Never"),
         UI_LAND_PLAYED_NOTIFICATION_POLICY ("Never"),
         UI_PAUSE_WHILE_MINIMIZED("false"),
@@ -151,7 +144,7 @@ public class ForgePreferences extends PreferencesStore<ForgePreferences.FPref> {
         UI_ALT_PLAYERINFOLAYOUT ("false"),
         UI_ALT_PLAYERZONETABS ("false"),
         UI_PRESELECT_PREVIOUS_ABILITY_ORDER ("false"),
-        UI_AUTO_YIELD_MODE (ForgeConstants.AUTO_YIELD_PER_ABILITY),
+        UI_AUTO_DECISION_MODE (ForgeConstants.AUTO_DECISION_PER_ABILITY),
         UI_SHOW_STORM_COUNT_IN_PROMPT ("false"),
         UI_REMIND_ON_PRIORITY ("false"),
         UI_CARD_COUNTER_DISPLAY_TYPE(ForgeConstants.CounterDisplayType.TEXT.getName()),
@@ -183,16 +176,32 @@ public class ForgePreferences extends PreferencesStore<ForgePreferences.FPref> {
         UI_FOR_TOUCHSCREN("false"),
         UI_SWITCH_STATES_DECKVIEW("Switch back on hover"),
         UI_ORDER_HAND("false"),
+        UI_HAND_MAX_CARDS_PER_ROW("0"),
+        UI_HAND_NO_OVERLAP("false"),
+        UI_ZONE_TAB_NEW_COUNT("true"),
         UI_ENABLE_AI_PICKER("false"),
 
+        UI_ENABLE_SOUNDS ("true"),
+        UI_ENABLE_MUSIC ("true"),
+        UI_VOL_SOUNDS ("100"),
+        UI_VOL_MUSIC ("100"),
+        UI_ALT_SOUND_SYSTEM ("false"),
+        UI_CURRENT_SOUND_SET("Default"),
+        UI_CURRENT_MUSIC_SET("Default"),
+
+        UI_VIBRATE_INTENSITY("100"),
         UI_VIBRATE_ON_LIFE_LOSS("true"),
         UI_VIBRATE_ON_LONG_PRESS("true"),
+        UI_VIBRATE_ON_ENEMY_ENCOUNTER("true"),
+        UI_VIBRATE_ON_ADVENTURE_REWARD("true"),
+        UI_VIBRATE_ON_SHOP_ACTION("true"),
 
         UI_LANGUAGE("en-US"),
 
         AUTO_UPDATE("none"),
         USE_SENTRY("false"), // this controls whether automated bug reporting is done or not
         CHECK_SNAPSHOT_AT_STARTUP("true"),
+        MAX_LOG_FILES("10"), // applied per category: up to N forge.*.log backups AND N network log entries
 
         MATCH_HOT_SEAT_MODE("false"), //this only applies to mobile game
 
@@ -280,6 +289,9 @@ public class ForgePreferences extends PreferencesStore<ForgePreferences.FPref> {
         ZONE_LOC_AI_COMMAND(""),
         ZONE_LOC_AI_ANTE(""),
         ZONE_LOC_AI_SIDEBOARD(""),
+
+        UI_ZONE_DOCK_ZONES(""),
+        UI_ZONE_DOCK_ZONES_OTHER(""),
 
         CHAT_WINDOW_LOC(""),
 
@@ -371,37 +383,6 @@ public class ForgePreferences extends PreferencesStore<ForgePreferences.FPref> {
     /** Instantiates a ForgePreferences object. */
     public ForgePreferences() {
         super(ForgeConstants.MAIN_PREFS_FILE, FPref.class);
-        migrateLogVerbosity();
-    }
-
-    /** Migrate old GameLogEntryType values to GameLogVerbosity presets. */
-    private void migrateLogVerbosity() {
-        final String stored = getPref(FPref.DEV_LOG_ENTRY_TYPE);
-        try {
-            GameLogVerbosity.valueOf(stored); // strict check for enum name
-            return; // already a valid verbosity preset
-        } catch (IllegalArgumentException ignored) {}
-        // Also accept caption format ("High" etc.) from combobox storage
-        for (GameLogVerbosity v : GameLogVerbosity.values()) {
-            if (v.toString().equals(stored)) {
-                setPref(FPref.DEV_LOG_ENTRY_TYPE, v.name());
-                save();
-                return;
-            }
-        }
-        // Old value is a GameLogEntryType name — map to a preset
-        try {
-            int ordinal = GameLogEntryType.valueOf(stored).ordinal();
-            String mapped = ordinal <= 8 ? GameLogVerbosity.LOW.name()
-                          : ordinal <= 14 ? GameLogVerbosity.MEDIUM.name()
-                          : GameLogVerbosity.HIGH.name();
-            setPref(FPref.DEV_LOG_ENTRY_TYPE, mapped);
-            save();
-        } catch (IllegalArgumentException ignored) {
-            // Unrecognized value — reset to default
-            setPref(FPref.DEV_LOG_ENTRY_TYPE, FPref.DEV_LOG_ENTRY_TYPE.getDefault());
-            save();
-        }
     }
 
     /** Parse the custom log types preference into a Set. */
@@ -451,12 +432,7 @@ public class ForgePreferences extends PreferencesStore<ForgePreferences.FPref> {
         return key.getDefault();
     }
 
-    // was not used anywhere else
-    public static boolean NET_CONN = false;
-
-    /** The Constant DevMode. */
     // one for normal mode, one for quest mode
     public static boolean DEV_MODE;
-    /** The Constant UpldDrft. */
     public static boolean UPLOAD_DRAFT;
 }

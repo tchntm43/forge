@@ -24,6 +24,8 @@ import forge.card.CardType;
 import forge.deck.CardPool;
 import forge.deck.Deck;
 import forge.gui.FThreads;
+import forge.haptic.HapticEngine;
+import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.item.PaperCard;
 import forge.screens.TransitionScreen;
 import forge.sound.SoundEffectType;
@@ -153,11 +155,9 @@ public class WorldStage extends GameStage implements SaveFileContent {
                     player.playEffect(Paths.EFFECT_SPARKS, 0.5f);
                     mob.setAnimation(CharacterSprite.AnimationTypes.Attack);
                     SoundSystem.instance.play(SoundEffectType.Block, false);
-                    Gdx.input.vibrate(50);
-                    int duration = mob.getData().boss ? 400 : 200;
-                    if (Controllers.getCurrent() != null && Controllers.getCurrent().canVibrate())
-                        Controllers.getCurrent().startVibration(duration, 1);
-
+                    HapticEngine.vibrate(FPref.UI_VIBRATE_ON_ENEMY_ENCOUNTER, mob.getData().boss ? 400 : 200);
+                    Forge.advFreezePlayerControls = true;
+                    player.clearCollisionHeight();
                     startPause(0.8f, () -> {
                         Forge.setCursor(null, Forge.magnifyToggle ? "1" : "2");
                         SoundSystem.instance.play(SoundEffectType.ManaBurn, false);

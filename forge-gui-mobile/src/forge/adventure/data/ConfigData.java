@@ -14,6 +14,7 @@ public class ConfigData {
     public String font;
     public String fontColor;
     public int minDeckSize;
+    public int maxNumberOfDecks;
     public float playerBaseSpeed;
     public String[] colorIds;
     public String[] colorIdNames;
@@ -25,8 +26,16 @@ public class ConfigData {
     public String[] restrictedCards;
     public String[] bannedCards;
     public String[] restrictedEditions;
+    public String[] restrictedBlocks;
+    public String[] restrictedTokens;
     public String[] allowedEditions;
+    public boolean vintageOnlyEditions = false;
     public String[] restrictedEvents;
     public String[] allowedEvents;
     public String[] allowedJumpstart;
+    public String defaultBasicLandSet = "JMP";
+    public boolean enableGeneticAI = true;
+    public String chaosDeckFormat;
+    public boolean usePriceListPrices = true;
+
 }
