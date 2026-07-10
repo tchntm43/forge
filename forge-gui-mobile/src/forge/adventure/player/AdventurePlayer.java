@@ -798,6 +798,7 @@ public class AdventurePlayer implements Serializable, SaveFileContent {
             getCurrentGameStage().setExtraAnnouncement(Forge.getLocalizer().getMessage("lblDataMigrationMsg"));
         }
 
+        RewardData.invalidateCardPool();
         onLifeTotalChangeList.emit();
         onShardsChangeList.emit();
         onGoldChangeList.emit();

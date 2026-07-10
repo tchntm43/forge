@@ -101,24 +101,17 @@ public enum CSubmenuPreferences implements ICDoc {
             SoundSystem.instance.changeBackgroundTrack();
         });
 
-        // This updates Experimental Network Option
-        view.getCbUseExperimentalNetworkStream().addItemListener(arg0 -> {
-            if (updating) { return; }
-
-            final boolean toggle = view.getCbUseExperimentalNetworkStream().isSelected();
-            GuiBase.enablePropertyConfig(toggle);
-            prefs.setPref(FPref.UI_NETPLAY_COMPAT, String.valueOf(toggle));
-            prefs.save();
-        });
-
         lstControls.clear(); // just in case
         lstControls.add(Pair.of(view.getCbAnte(), FPref.UI_ANTE));
         lstControls.add(Pair.of(view.getCbAnteMatchRarity(), FPref.UI_ANTE_MATCH_RARITY));
         lstControls.add(Pair.of(view.getCbAnteIncludeBasicLands(), FPref.UI_ANTE_INCLUDE_BASIC_LANDS));
-        lstControls.add(Pair.of(view.getCbManaBurn(), FPref.UI_MANABURN));
+        lstControls.add(Pair.of(view.getCbManaBurn(), FPref.LEGACY_MANABURN));
         lstControls.add(Pair.of(view.getCbOrderCombatants(), FPref.LEGACY_ORDER_COMBATANTS));
         lstControls.add(Pair.of(view.getCbScaleLarger(), FPref.UI_SCALE_LARGER));
         lstControls.add(Pair.of(view.getCbRenderBlackCardBorders(), FPref.UI_RENDER_BLACK_BORDERS));
+        lstControls.add(Pair.of(view.getCbShowActionableHighlights(), FPref.UI_SHOW_ACTIONABLE_HIGHLIGHTS));
+        lstControls.add(Pair.of(view.getCbShowAutoTapPreview(), FPref.UI_SHOW_AUTOTAP_PREVIEW));
+        lstControls.add(Pair.of(view.getCbShowLinkedExileCards(), FPref.UI_SHOW_LINKED_EXILE_CARDS));
         lstControls.add(Pair.of(view.getCbLargeCardViewers(), FPref.UI_LARGE_CARD_VIEWERS));
         lstControls.add(Pair.of(view.getCbSmallDeckViewer(), FPref.UI_SMALL_DECK_VIEWER));
         lstControls.add(Pair.of(view.getCbRandomArtInPools(), FPref.UI_RANDOM_ART_IN_POOLS));
@@ -136,15 +129,14 @@ public enum CSubmenuPreferences implements ICDoc {
         lstControls.add(Pair.of(view.getCbEnableUnknownCards(), FPref.UI_LOAD_UNKNOWN_CARDS));
         lstControls.add(Pair.of(view.getCbEnableNonLegalCards(), FPref.UI_LOAD_NONLEGAL_CARDS));
         lstControls.add(Pair.of(view.getCbAllowCustomCardsDeckConformance(), FPref.ALLOW_CUSTOM_CARDS_IN_DECKS_CONFORMANCE));
-        lstControls.add(Pair.of(view.getCbUseExperimentalNetworkStream(), FPref.UI_NETPLAY_COMPAT));
         lstControls.add(Pair.of(view.getCbImageFetcher(), FPref.UI_ENABLE_ONLINE_IMAGE_FETCHER));
         lstControls.add(Pair.of(view.getCbDisableCardImages(), FPref.UI_DISABLE_CARD_IMAGES));
         lstControls.add(Pair.of(view.getCbDisplayFoil(), FPref.UI_OVERLAY_FOIL_EFFECT));
         lstControls.add(Pair.of(view.getCbRandomFoil(), FPref.UI_RANDOM_FOIL));
         lstControls.add(Pair.of(view.getCbEnableSounds(), FPref.UI_ENABLE_SOUNDS));
         lstControls.add(Pair.of(view.getCbAltSoundSystem(), FPref.UI_ALT_SOUND_SYSTEM));
-        lstControls.add(Pair.of(view.getCbSROptimize(), FPref.UI_SR_OPTIMIZE));
-        lstControls.add(Pair.of(view.getCbUiForTouchScreen(), FPref.UI_FOR_TOUCHSCREN));
+        lstControls.add(Pair.of(view.getCbSROptimize(), FPref.UI_SCREENREADER_OPTIMIZE));
+        lstControls.add(Pair.of(view.getCbUiForTouchScreen(), FPref.UI_TOUCHSCREEN_OPTIMIZE));
         lstControls.add(Pair.of(view.getCbTimedTargOverlay(), FPref.UI_TIMED_TARGETING_OVERLAY_UPDATES));
         lstControls.add(Pair.of(view.getCbCompactMainMenu(), FPref.UI_COMPACT_MAIN_MENU));
         lstControls.add(Pair.of(view.getCbUseSentry(), FPref.USE_SENTRY));
@@ -163,7 +155,6 @@ public enum CSubmenuPreferences implements ICDoc {
         lstControls.add(Pair.of(view.getCbEscapeEndsTurn(), FPref.UI_ALLOW_ESC_TO_END_TURN));
         lstControls.add(Pair.of(view.getCbDetailedPaymentDesc(), FPref.UI_DETAILED_SPELLDESC_IN_PROMPT));
         lstControls.add(Pair.of(view.getCbGrayText(), FPref.UI_GRAY_INACTIVE_TEXT));
-        lstControls.add(Pair.of(view.getCbPreselectPrevAbOrder(), FPref.UI_PRESELECT_PREVIOUS_ABILITY_ORDER));
         lstControls.add(Pair.of(view.getCbShowStormCount(), FPref.UI_SHOW_STORM_COUNT_IN_PROMPT));
         lstControls.add(Pair.of(view.getCbRemindOnPriority(), FPref.UI_REMIND_ON_PRIORITY));
 
@@ -237,8 +228,40 @@ public enum CSubmenuPreferences implements ICDoc {
         initializeServerPortButton();
         initializeAfkTimeoutButton();
         initializeDefaultLanguageComboBox();
+        initializeActionableHighlightColorField();
 
         disableLazyLoading();
+    }
+
+    private void initializeActionableHighlightColorField() {
+        final forge.toolbox.FTextField field = view.getTxtActionableHighlightColor();
+        field.setText(prefs.getPref(FPref.UI_ACTIONABLE_HIGHLIGHT_COLOR));
+        field.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override public void focusLost(java.awt.event.FocusEvent e) { saveActionableHighlightColor(field); }
+        });
+        field.addActionListener(e -> saveActionableHighlightColor(field));
+    }
+
+    private void saveActionableHighlightColor(forge.toolbox.FTextField field) {
+        if (updating) return;
+        String normalized = normalizeHexColor(field.getText());
+        if (normalized == null) {
+            // Invalid input: revert the field to the persisted value rather than silently keeping garbage.
+            field.setText(prefs.getPref(FPref.UI_ACTIONABLE_HIGHLIGHT_COLOR));
+            return;
+        }
+        field.setText(normalized);
+        prefs.setPref(FPref.UI_ACTIONABLE_HIGHLIGHT_COLOR, normalized);
+        prefs.save();
+    }
+
+    /** Accepts a case-insensitive 6-char RGB hex; returns it uppercased, or
+     *  null when input isn't 6 hex characters. */
+    private static String normalizeHexColor(String raw) {
+        if (raw == null) return null;
+        String s = raw.trim();
+        if (s.length() != 6 || !s.matches("[0-9A-Fa-f]{6}")) return null;
+        return s.toUpperCase();
     }
 
     /* (non-Javadoc)
@@ -254,11 +277,11 @@ public enum CSubmenuPreferences implements ICDoc {
         setPlayerNameButtonText();
         view.getCbDevMode().setSelected(ForgePreferences.DEV_MODE);
         view.getCbEnableMusic().setSelected(prefs.getPrefBoolean(FPref.UI_ENABLE_MUSIC));
-        view.getCbUseExperimentalNetworkStream().setSelected(prefs.getPrefBoolean(FPref.UI_NETPLAY_COMPAT));
 
         for(final Pair<JCheckBox, FPref> kv: lstControls) {
             kv.getKey().setSelected(prefs.getPrefBoolean(kv.getValue()));
         }
+        view.getTxtActionableHighlightColor().setText(prefs.getPref(FPref.UI_ACTIONABLE_HIGHLIGHT_COLOR));
         view.reloadShortcuts();
 
         SwingUtilities.invokeLater(() -> view.getCbRemoveSmall().requestFocusInWindow());

@@ -707,7 +707,7 @@ public class AiController {
                 continue;
             }
 
-            AiPlayDecision opinion = canPlayAndPayFor(currentSA);
+            AiPlayDecision opinion = canPlayAndPayFor(sa);
             //PhaseHandler ph = game.getPhaseHandler();
             // System.out.printf("Ai thinks '%s' of %s @ %s %s >>> \n", opinion, sa, Lang.getPossesive(ph.getPlayerTurn().getName()), ph.getPhase());
             if (opinion == AiPlayDecision.WillPlay) {
@@ -782,17 +782,20 @@ public class AiController {
     }
     public boolean reserveManaSources(SpellAbility sa, PhaseType phaseType, boolean enemy, boolean forNextSpell, SpellAbility exceptForThisSa) {
         ManaCostBeingPaid cost = ComputerUtilMana.calculateManaCost(sa.getPayCosts(), sa, player, true, 0, false);
-        CardCollection manaSources = ComputerUtilMana.getManaSourcesToPayCost(cost, sa, player);
+        CardCollection manaSources = ComputerUtilMana.getManaSourcesToPayCost(cost, sa, player, false);
+
+        if (manaSources == null || manaSources.isEmpty()) {
+            return false;
+        }
 
         // used for chained spells where two spells need to be cast in succession
         if (exceptForThisSa != null) {
-            manaSources.removeAll(ComputerUtilMana.getManaSourcesToPayCost(
+            CardCollection exceptSources = ComputerUtilMana.getManaSourcesToPayCost(
                     ComputerUtilMana.calculateManaCost(exceptForThisSa.getPayCosts(), exceptForThisSa, player, true, 0, false),
-                    exceptForThisSa, player));
-        }
-
-        if (manaSources.isEmpty()) {
-            return false;
+                    exceptForThisSa, player, false);
+            if (exceptSources != null) {
+                manaSources.removeAll(exceptSources);
+            }
         }
 
         AiCardMemory.MemorySet memSet = null;
@@ -976,7 +979,7 @@ public class AiController {
             return AiPlayDecision.AnotherTime;
         }
         if (sa.usesTargeting()) {
-            if (!sa.isTargetNumberValid() && sa.getTargetRestrictions().getNumCandidates(sa, true) == 0) {
+            if (!sa.isTargetNumberValid() && sa.getTargetRestrictions().getNumCandidates(sa) == 0) {
                 return AiPlayDecision.TargetingFailed;
             }
             if (!StaticAbilityMustTarget.meetsMustTargetRestriction(sa)) {
