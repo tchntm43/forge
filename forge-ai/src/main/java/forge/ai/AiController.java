@@ -699,6 +699,14 @@ public class AiController {
             sa.setActivatingPlayer(player);
             // check everything necessary
 
+            //log problems where sa has null API
+            if (sa.getApi() == null) {
+                System.err.println("AI found SA with null API:");
+                System.err.println("Card: " + sa.getHostCard());
+                System.err.println("SA: " + sa);
+                continue;
+            }
+
             AiPlayDecision opinion = canPlayAndPayFor(currentSA);
             //PhaseHandler ph = game.getPhaseHandler();
             // System.out.printf("Ai thinks '%s' of %s @ %s %s >>> \n", opinion, sa, Lang.getPossesive(ph.getPlayerTurn().getName()), ph.getPhase());

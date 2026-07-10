@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.github.tommyettinger.textra.TypingLabel;
 import forge.Forge;
 import forge.adventure.player.AdventurePlayer;
+import forge.adventure.stage.WorldStage;
 import forge.item.PaperCard;
 import forge.screens.FScreen;
 import forge.screens.NomadsBazaarScreen;
@@ -124,6 +125,7 @@ public class NomadsBazaarScene extends UIScene
             instance = null;
             Actor bazaarBg = ui.findActor("nomadsbazaar_background");
             bazaarBg.setVisible(false);
+            WorldStage.getInstance().getPlayerSprite().resetCollisionHeight();
             Forge.advFreezePlayerControls = false;
             Forge.switchToLast();
         });

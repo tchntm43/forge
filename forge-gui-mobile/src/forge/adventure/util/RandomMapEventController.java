@@ -104,6 +104,12 @@ public class RandomMapEventController
         }
     }
 
+    private void endRandomMapEvent()
+    {
+        WorldStage.getInstance().getPlayerSprite().resetCollisionHeight();
+        Forge.advFreezePlayerControls = false;
+    }
+
     // === Individual event builders ===
 
     /**
@@ -146,7 +152,7 @@ public class RandomMapEventController
             @Override
             public void accept(Object ignored)
             {
-                Forge.advFreezePlayerControls = false;
+                endRandomMapEvent();
             }
         };
 
@@ -410,7 +416,7 @@ public class RandomMapEventController
             @Override
             public void accept(Object ignored)
             {
-                Forge.advFreezePlayerControls = false;
+                endRandomMapEvent();
             }
         };
 
@@ -459,7 +465,7 @@ public class RandomMapEventController
             @Override
             public void accept(Object ignored)
             {
-                Forge.advFreezePlayerControls = false;
+                endRandomMapEvent();
             }
         };
 
@@ -498,7 +504,7 @@ public class RandomMapEventController
             @Override
             public void accept(Object ignored)
             {
-                Forge.advFreezePlayerControls = false;
+                endRandomMapEvent();
             }
         };
 
@@ -524,7 +530,7 @@ public class RandomMapEventController
             public void accept(Object ignored)
             {
                 AdventurePlayer.current().addGoldp(goldAmount);
-                Forge.advFreezePlayerControls = false;
+                endRandomMapEvent();
             }
         };
 
@@ -556,7 +562,7 @@ public class RandomMapEventController
             public void accept(Object ignored)
             {
                 AdventurePlayer.current().takeGold(goldLost);
-                Forge.advFreezePlayerControls = false;
+                endRandomMapEvent();
             }
         };
         opt2.callback = new Consumer()
@@ -565,7 +571,7 @@ public class RandomMapEventController
             public void accept(Object ignored)
             {
                 AdventurePlayer.current().takeShards(shardsLost);
-                Forge.advFreezePlayerControls = false;
+                endRandomMapEvent();
             }
         };
         opt3.callback = new Consumer()
@@ -574,7 +580,7 @@ public class RandomMapEventController
             public void accept(Object ignored)
             {
                 AdventurePlayer.current().loseLife(lifeLost);
-                Forge.advFreezePlayerControls = false;
+                endRandomMapEvent();
             }
         };
 
@@ -721,7 +727,7 @@ public class RandomMapEventController
             @Override
             public void accept(Object ignored)
             {
-                Forge.advFreezePlayerControls = false;
+                endRandomMapEvent();
             }
         };
 

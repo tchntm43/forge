@@ -140,12 +140,10 @@ public final class TradeController
 
     public void finishTrade(boolean removeMob)
     {
-        if (currentMob != null) {
-            WorldStage.getInstance().onMobTradeFinished(currentMob, removeMob);
-            currentMob = null;
-        }
-
-        // Return to map scene
+        System.out.println("finishTrade: currentMob=" + currentMob);
+        WorldStage.getInstance().onMobTradeFinished(currentMob, removeMob);
+        currentMob = null;
+        System.out.println("finishTrade: freeze=" + Forge.advFreezePlayerControls);
         Forge.switchToLast();
     }
 

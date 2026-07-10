@@ -16,6 +16,7 @@ import com.github.tommyettinger.textra.TextraButton;
 import com.github.tommyettinger.textra.TypingLabel;
 import forge.Forge;
 import forge.adventure.player.AdventurePlayer;
+import forge.adventure.stage.WorldStage;
 import forge.adventure.util.Controls;
 import forge.adventure.util.Reward;
 import forge.adventure.util.RewardActor;
@@ -125,6 +126,8 @@ public class DuplicateScene extends UIScene
     private void finishDuplicate()
     {
         AdventurePlayer.current().addCard(duplicateCard, 1);
+        WorldStage.getInstance().getPlayerSprite().resetCollisionHeight();
+        Forge.advFreezePlayerControls = false;
         Forge.switchToLast();
     }
 

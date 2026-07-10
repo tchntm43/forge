@@ -222,12 +222,12 @@ public class WorldStage extends GameStage implements SaveFileContent {
     private void triggerRandomMapEvent()
     {
         System.out.println("entered triggerRandomMapEvent method");
-        Forge.advFreezePlayerControls = true;
         if(!canTriggerRandomMapEvents())
         {
             System.out.println("cancelled random map event");
             return;
         }
+        Forge.advFreezePlayerControls = true;
         randomEventCooldown = RANDOM_EVENT_COOLDOWN;
         //sends flow to RandomMapEventController to handle rest of random map event
         DialogData root = RandomMapEventController.getInstance().getRandomEvent();
@@ -303,44 +303,29 @@ public class WorldStage extends GameStage implements SaveFileContent {
     }
 
     private PaperCard pickRandomPermanentFromEnemyDeck(EnemyData enemyData) {
-        // Pool of candidate permanents
         java.util.List<PaperCard> pool = new java.util.ArrayList<>();
 
-        // For each deck file the enemy can use
-        for (String deckPath : enemyData.deck) {
-            try {
-                // This mirrors what EnemyData.generateDeck does
-                Deck deck = CardUtil.getDeck(
-                        deckPath,
-                        true,                     // add basic lands if needed (same as existing usage)
-                        false,                    // isFantasyMode; adventure may pass false here
-                        enemyData.colors,
-                        enemyData.life > 13,
-                        false                     // useGeneticAI; not needed for sampling
-                );
+        try {
+            Deck deck = enemyData.generateDeck(Current.player().isFantasyMode(), false);
+            CardPool main = deck.getMain();
 
-                CardPool main = deck.getMain();  // <- this is your CardPool
+            for (Map.Entry<PaperCard, Integer> entry : main) {
+                PaperCard pc = entry.getKey();
+                int copies = entry.getValue() != null ? entry.getValue() : 0;
 
-                // Iterate over distinct cards in the main deck
-                for (Map.Entry<PaperCard, Integer> entry : main) {
-                    PaperCard pc = entry.getKey();
-                    int copies = entry.getValue() != null ? entry.getValue() : 0;
-
-                    if (pc == null || copies <= 0) {
-                        continue;
-                    }
-                    if (!isPermanentCard(pc)) {
-                        continue;
-                    }
-
-                    // Weight random choice by number of copies
-                    for (int i = 0; i < copies; i++) {
-                        pool.add(pc);
-                    }
+                if (pc == null || copies <= 0) {
+                    continue;
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
+                if (!isPermanentCard(pc)) {
+                    continue;
+                }
+
+                for (int i = 0; i < copies; i++) {
+                    pool.add(pc);
+                }
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
         if (pool.isEmpty()) {
@@ -371,10 +356,12 @@ public class WorldStage extends GameStage implements SaveFileContent {
     }
 
     public void onMobTradeFinished(EnemySprite mob, boolean removeMob) {
-        if (removeMob) {
+        if (removeMob && mob != null)
+        {
             removeEnemy(mob);
         }
         collided = false;
+        player.resetCollisionHeight();
         Forge.advFreezePlayerControls = false;
     }
 

@@ -402,13 +402,23 @@ public class CardUtil {
             default -> 600;
         };
     }
+
     public static int getBoosterPrice(Deck booster) {
-    	if (booster == null)
+        if (booster == null)
             return 0;
-    	String editionCode = booster.getComment();
+        String editionCode = booster.getComment();
         AdventureReadPriceList.PriceData data = getPriceData();
         boolean useCustomPrices = data.mode == AdventureReadPriceList.PriceMode.FORCED
                 || Config.instance().getConfigData().usePriceListPrices;
+
+        if (useCustomPrices) {
+            Integer price = data.prices.get(editionCode);
+            if (price != null) {
+                return price;
+            }
+        }
+        return 1000;
+    }
 
     public static boolean isBanned(String cardName)
     {

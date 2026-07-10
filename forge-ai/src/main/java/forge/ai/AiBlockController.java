@@ -1071,6 +1071,21 @@ public class AiBlockController {
         // Begin with the weakest blockers
         CardLists.sortByPowerAsc(blockersLeft);
 
+        // Skip excessive logic if the battlefield is extremely cluttered, takes far too long with full decision-making
+        final boolean largeCombat = attackersLeft.size() > 100
+                || (long) attackersLeft.size() * blockersLeft.size() > 20000L;
+
+        if (largeCombat)
+        {
+            makeRequiredBlocks(combat);
+            lifeInDanger = ComputerUtilCombat.lifeInDanger(ai, combat);
+            if (lifeInDanger)
+            {
+                makeChumpBlocks(combat);
+            }
+            return;
+        }
+
         // == 1. choose best blocks first ==
         makeGoodBlocks(combat);
         makeGangBlocks(combat);
