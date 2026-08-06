@@ -18,6 +18,7 @@
 - Added rare restricted-card chest rewards. This can be toggled by a setting.
 - Added Liliana rewards, including +1 life and Liliana's Chain Veil item.
 - Made some adjustments to the card rarities in chests and in shops
+- Disabled most digital and other non-paper-legal cards from appearing in shops, rewards, or genetic AI decks. Some still slip through. Can be toggled by a setting.
 
 ## Card And Script Fixes
 
