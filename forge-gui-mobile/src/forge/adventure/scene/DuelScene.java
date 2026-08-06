@@ -555,6 +555,7 @@ public class DuelScene extends ForgeScene {
         rules.setAnteIncludeBasicLands(FModel.getPreferences().getPrefBoolean(ForgePreferences.FPref.UI_ANTE_INCLUDE_BASIC_LANDS));
         rules.setManaBurn(false);
         rules.setWarnAboutAICards(false);
+        rules.setAiConcessionEnabled(Config.instance().getSettingData().enableAiConcession);
 
         //hostedMatch.setEndGameHook(() -> DuelScene.this.GameEnd());
         hostedMatch.startMatch(rules, appliedVariants, players, guiMap, bossBattle ? MusicPlaylist.BOSS : MusicPlaylist.MATCH);

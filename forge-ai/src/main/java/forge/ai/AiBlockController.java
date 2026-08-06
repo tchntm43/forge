@@ -1079,6 +1079,8 @@ public class AiBlockController {
         // Begin with the weakest blockers
         CardLists.sortByPowerAsc(blockersLeft);
 
+        forceBlocksForSpecificBlockers(combat);
+
         // Skip excessive logic if the battlefield is extremely cluttered, takes far too long with full decision-making
         final boolean largeCombat = attackersLeft.size() > 100
                 || (long) attackersLeft.size() * blockersLeft.size() > 20000L;
@@ -1396,5 +1398,45 @@ public class AiBlockController {
             currentBlockTax += taxCMC;
         }
         return modified;
+    }
+
+    private void forceBlocksForSpecificBlockers(final Combat combat)
+    {
+        List<Card> currentAttackers = new ArrayList<>(attackersLeft);
+        for(final Card blocker : new ArrayList<>(blockersLeft))
+        {
+            if(!"Hornet Nest".equals(blocker.getName()))
+            {
+                continue;
+            }
+
+            Card bestAttacker = null;
+            int bestDamage = -1;
+            for(final Card attacker : currentAttackers)
+            {
+                if (CombatUtil.getMinNumBlockersForAttacker(attacker, combat.getDefenderPlayerByAttacker(attacker)) > 1)
+                {
+                    continue;
+                }
+
+                if (!CombatUtil.canBlock(attacker, blocker, combat))
+                {
+                    continue;
+                }
+                int damage = Math.max(0, attacker.getNetCombatDamage());
+                if (damage > bestDamage)
+                {
+                    bestDamage = damage;
+                    bestAttacker = attacker;
+                }
+            }
+            if (bestAttacker != null)
+            {
+                combat.addBlocker(bestAttacker, blocker);
+                currentAttackers.remove(bestAttacker);
+                blockersLeft.remove(blocker);
+            }
+        }
+        attackersLeft = new ArrayList<>(currentAttackers);
     }
 }

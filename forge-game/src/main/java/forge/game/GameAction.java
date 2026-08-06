@@ -32,11 +32,13 @@ import forge.game.ability.AbilityUtils;
 import forge.game.ability.ApiType;
 import forge.game.ability.SpellAbilityEffect;
 import forge.game.card.*;
+import forge.game.combat.CombatUtil;
 import forge.game.event.*;
 import forge.game.extrahands.BackupPlanService;
 import forge.game.keyword.Keyword;
 import forge.game.keyword.KeywordInterface;
 import forge.game.mulligan.MulliganService;
+import forge.game.phase.PhaseType;
 import forge.game.player.*;
 import forge.game.replacement.ReplacementEffect;
 import forge.game.replacement.ReplacementResult;
@@ -1963,6 +1965,148 @@ public class GameAction {
         return checkAgain;
     }
 
+    private boolean isFogLikeCombatPrevention(SpellAbility sa)
+    {
+        for(SpellAbility cur = sa; cur != null; cur = cur.getSubAbility())
+        {
+            if(cur.getApi() == ApiType.Fog || "Fog".equals(cur.getParam("AILogic")))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean aiHasAvailableFogEffect(Player ai)
+    {
+        if(game.getReplacementHandler().isPreventCombatDamageThisTurn())
+        {
+            return true;
+        }
+        CardCollection cards = new CardCollection(ai.getCardsIn(ZoneType.Hand));
+        cards.addAll(ai.getCardsActivatableInExternalZones(true));
+        for(final Card c : cards)
+        {
+            if(c.getZone() != null && c.getZone().getPlayer() != null && c.getZone().getPlayer() != ai && c.mayPlay(ai).isEmpty())
+            {
+                continue;
+            }
+            for(final SpellAbility sa : c.getSpellAbilities())
+            {
+                if(!isFogLikeCombatPrevention(sa))
+                {
+                    continue;
+                }
+                final Player oldActivator = sa.getActivatingPlayer();
+                sa.setActivatingPlayer(ai);
+                final boolean canPlay = sa.canPlay(true);
+                sa.setActivatingPlayer(oldActivator);
+                if(canPlay)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void removeAttackersThatWouldDieToCircleOfFlame(List<Card> attackers, Player defender)
+    {
+        int circles = CardLists.count(defender.getCardsIn(ZoneType.Battlefield), c -> "Circle of Flame".equals(c.getName()));
+        if(circles <= 0)
+        {
+            return;
+        }
+        attackers.removeIf(c ->
+                !c.hasKeyword(Keyword.FLYING) &&
+                !c.hasKeyword(Keyword.INDESTRUCTIBLE) &&
+                circles >= c.getLethalDamage());
+    }
+
+    private boolean aiHasStasisEffect(Player ai)
+    {
+        if(ai.isCardInPlay("Stasis") || ai.isCardInPlay("Intruder Alarm"))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean aiMightWinOnOpponentsTurn(Player ai)
+    {
+        if(ai.isCardInPlay("Mesmeric Orb") || ai.isCardInPlay("Black Vise") ||
+        ai.isCardInPlay("The Rack"))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean aiHasPendingBossLifeReplacement(Player ai)
+    {
+        for(Card c : ai.getCardsIn(ZoneType.Command))
+        {
+            if("Garruk's Boss Effect Phase One".equals(c.getName()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean aiHasDamageReflection(Player ai)
+    {
+        if(ai.getCardsIn(ZoneType.Battlefield).anyMatch(CardPredicates.nameEquals("Spiteful Sliver")))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean shouldAiConcedeToOverwhelmingCombat(Player ai, Player attacker, boolean currentCombat)
+    {
+        if(aiHasAvailableFogEffect(ai) || aiHasStasisEffect(ai) || aiMightWinOnOpponentsTurn(ai) || aiHasPendingBossLifeReplacement(ai) ||
+                ai.cantLoseForZeroOrLessLife() || aiHasDamageReflection(ai))
+        {
+            return false;
+        }
+        List<Card> attackers = new ArrayList<>(attacker.getCreaturesInPlay());
+        List<Card> blockers = new ArrayList<>(ai.getCreaturesInPlay());
+
+        blockers.removeIf(c -> c.isTapped() || !CombatUtil.canBlock(c));
+        if(currentCombat)
+        {
+            attackers.removeIf(c -> !CombatUtil.canAttack(c, ai));
+        }
+        else
+        {
+            attackers.removeIf(c -> !CombatUtil.canAttackNextTurn(c, ai));
+        }
+
+        removeAttackersThatWouldDieToCircleOfFlame(attackers, ai);
+
+        attackers.sort(Comparator.comparingInt(Card::getNetCombatDamage).reversed());
+        int numBlocks = 0;
+        for(Card blocker : blockers)
+        {
+            if(blocker.canBlockAny())
+            {
+                numBlocks = attackers.size();
+                break;
+            }
+            numBlocks += 1 + blocker.canBlockAdditional();
+        }
+        List<Card> unblocked = attackers.subList(Math.min(numBlocks, attackers.size()), attackers.size());
+
+        int damage = 0;
+        for(Card c : unblocked)
+        {
+            damage += Math.max(0, c.getNetCombatDamage());
+        }
+
+        return damage >= ai.getLife();
+    }
+
     public void checkGameOverCondition() {
         if (game.isGameOver()) {
             return;
@@ -1972,6 +2116,35 @@ public class GameAction {
         GameEndReason reason = null;
         List<Player> losers = null;
         FCollectionView<Player> allPlayers = game.getPlayers();
+
+        //Check if AI should concede due to conditions that would make it lose
+        if(allPlayers.size() == 2 && game.getRules().getAiConcessionEnabled())
+        {
+            Player p1 = allPlayers.get(0);
+            Player p2 = allPlayers.get(1);
+
+            boolean p1IsAI = p1.getController().isAI();
+            boolean p2IsAI = p2.getController().isAI();
+
+            if(p1IsAI != p2IsAI)
+            {
+                Player ai = p1IsAI ? p1 : p2;
+                Player human = p1IsAI ? p2 : p1;
+
+                //Begin checks
+
+                //Check for concession due to overwhelming combat imbalance
+                PhaseType phase = game.getPhaseHandler().getPhase();
+                Player activePlayer = game.getPhaseHandler().getPlayerTurn();
+                boolean isHumanCombat = phase == PhaseType.COMBAT_BEGIN && activePlayer == human;
+                boolean isAiEndStep = phase == PhaseType.END_OF_TURN && activePlayer == ai;
+                if((isHumanCombat || isAiEndStep) && shouldAiConcedeToOverwhelmingCombat(ai, human, isHumanCombat))
+                {
+                    game.fireEvent(new GameEventAddLog(GameLogEntryType.INFORMATION, ai + " has conceded to " + human + " due to certain loss by combat"));
+                    ai.concede();
+                }
+            }
+        }
 
         // Has anyone won by spelleffect?
         for (Player p : allPlayers) {

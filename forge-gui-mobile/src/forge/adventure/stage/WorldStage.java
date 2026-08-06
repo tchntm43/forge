@@ -99,6 +99,7 @@ public class WorldStage extends GameStage implements SaveFileContent {
                     continue;
                 }
                 EnemySprite mob = pair.getValue();
+                boolean isEnemyAfraid = enemyAfraid(mob);
 
                 if (!currentModifications.containsKey(PlayerModification.Hide))
                 {
@@ -106,7 +107,7 @@ public class WorldStage extends GameStage implements SaveFileContent {
                     enemyMoveVector.setLength(mob.speed() * delta);
                     float distance = player.pos().dst(mob.pos());
                     float tileDistance = distance / WorldSave.getCurrentSave().getWorld().getTileSize();
-                    if(tileDistance < 3 && enemyAfraid(mob))
+                    if(Config.instance().getSettingData().enableEnemyFear && tileDistance < 3 && isEnemyAfraid)
                     {
                         enemyMoveVector.scl(-1f);
                     }
@@ -142,9 +143,11 @@ public class WorldStage extends GameStage implements SaveFileContent {
                     Forge.advFreezePlayerControls = true;
                     player.clearCollisionHeight();
 
-                    // Roll 1-in-5 chance to offer trading instead of fighting
+                    // Roll 1-in-5 chance to offer trading instead of fighting, afraid enemies always offer
+                    System.out.println("Trade check for " + mob.getName() + ": afraid=" + isEnemyAfraid);
                     int roll = MyRandom.getRandom().nextInt(5);
-                    if (roll == 0) {
+                    boolean enemyTradingEnabled = Config.instance().getSettingData().enableEnemyTrading;
+                    if (enemyTradingEnabled &&  (isEnemyAfraid || roll == 0)) {
                         DialogData root = TradeController.getInstance().startTrading(mob);
                         AdventureQuestController.instance().enqueueDialog(root, MapStage.getInstance());
 
@@ -178,13 +181,20 @@ public class WorldStage extends GameStage implements SaveFileContent {
                 }
             }
             //new code, timers for random map events
-            if (randomEventCooldown > 0f) {
-                randomEventCooldown -= delta;
-            } else {
-                randomEventTimer += delta;
-                if (randomEventTimer >= RANDOM_EVENT_INTERVAL) {
-                    randomEventTimer = 0f;
-                    rollRandomMapEvent();
+            if(Config.instance().getSettingData().enableRandomMapEvents)
+            {
+                if (randomEventCooldown > 0f)
+                {
+                    randomEventCooldown -= delta;
+                }
+                else
+                {
+                    randomEventTimer += delta;
+                    if (randomEventTimer >= RANDOM_EVENT_INTERVAL)
+                    {
+                        randomEventTimer = 0f;
+                        rollRandomMapEvent();
+                    }
                 }
             }
             //end of new code
@@ -194,6 +204,33 @@ public class WorldStage extends GameStage implements SaveFileContent {
             }
         }
         collided = false;
+    }
+
+    public void tradeToFight(EnemySprite mob)
+    {
+        player.setAnimation(CharacterSprite.AnimationTypes.Attack);
+        player.playEffect(Paths.EFFECT_SPARKS, 0.5f);
+        mob.setAnimation(CharacterSprite.AnimationTypes.Attack);
+        SoundSystem.instance.play(SoundEffectType.Block, false);
+        HapticEngine.vibrate(FPref.UI_VIBRATE_ON_ENEMY_ENCOUNTER, mob.getData().boss ? 400 : 200);
+        Forge.advFreezePlayerControls = true;
+        player.clearCollisionHeight();
+        startPause(0.8f, () -> {
+            Forge.setCursor(null, Forge.magnifyToggle ? "1" : "2");
+            SoundSystem.instance.play(SoundEffectType.ManaBurn, false);
+            DuelScene duelScene = DuelScene.instance();
+            FThreads.invokeInEdtNowOrLater(() -> {
+                Forge.setTransitionScreen(new TransitionScreen(() -> {
+                    collided = false;
+                    duelScene.initDuels(player, mob);
+                    Forge.switchScene(duelScene);
+                }, Forge.takeScreenshot(), true, false, false, false,
+                        "", Current.player().avatar(), mob.getAtlasPath(),
+                        Current.player().getName(), mob.getName()));
+                currentMob = mob;
+                WorldSave.getCurrentSave().autoSave();
+            });
+        });
     }
 
     private boolean enemyAfraid(EnemySprite mob)
@@ -237,6 +274,10 @@ public class WorldStage extends GameStage implements SaveFileContent {
 
     private boolean canTriggerRandomMapEvents()
     {
+        if(!Config.instance().getSettingData().enableRandomMapEvents)
+        {
+            return false;
+        }
         if(AdventureQuestController.instance().hasPendingDialogs())
         {
             System.out.println("hasPendingDialogs = true");

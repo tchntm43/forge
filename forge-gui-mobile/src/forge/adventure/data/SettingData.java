@@ -29,4 +29,10 @@ public class SettingData {
     public boolean bindEquipmentLoadoutsToDecks;
     public boolean drawChevronsToHiddenEnemiesInClearQuest;
     public boolean preferEraMatchedTokenArt;
+    public boolean enableRandomMapEvents=true;
+    public boolean enableEnemyTrading=true;
+    public boolean enableEnemyFear=true;
+    public boolean enableRestrictedCardChestRewards=true;
+    public boolean disableDigitalCardRewards=true;
+    public boolean enableAiConcession=true;
 }

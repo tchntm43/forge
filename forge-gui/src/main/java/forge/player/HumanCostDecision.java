@@ -1197,9 +1197,10 @@ public class HumanCostDecision extends CostDecisionMakerBase {
                 if (maxCounters < cntRemoved) {
                     return null;
                 }
-                if (!confirmAction(cost, Localizer.getInstance().getMessage("lblRemoveNTargetCounterFromCardPayCostConfirm", amount, anyCounters ? "" : cntrs.getName().toLowerCase(), source.getTranslatedName()))) {
+                //Remove this section for now, bring back if removing it breaks the game
+                /*if (!confirmAction(cost, Localizer.getInstance().getMessage("lblRemoveNTargetCounterFromCardPayCostConfirm", amount, anyCounters ? "" : cntrs.getName().toLowerCase(), source.getTranslatedName()))) {
                     return null;
-                }
+                }**/
             }
 
             if (maxCounters < cntRemoved) {

@@ -16,6 +16,7 @@ public class GameRules {
     private boolean AISideboardingEnabled = false;
     private boolean sideboardForAI = false;
     private boolean allowCheatShuffle = false;
+    private boolean aiConcessionEnabled = false;
     private final Set<GameType> appliedVariants = EnumSet.noneOf(GameType.class);
     private int simTimeout = 120;
 
@@ -31,6 +32,16 @@ public class GameRules {
 
     public GameType getGameType() {
         return gameType;
+    }
+
+    public boolean getAiConcessionEnabled()
+    {
+        return aiConcessionEnabled;
+    }
+
+    public void setAiConcessionEnabled(final boolean aiConcessionEnabled)
+    {
+        this.aiConcessionEnabled = aiConcessionEnabled;
     }
 
     public boolean hasManaBurn() {

@@ -72,27 +72,59 @@ public class AdventureDeckEditor extends FDeckEditor
             return true;
         }
 
+        private static boolean shouldShowTradeBinderPage()
+        {
+            return Config.instance().getSettingData().enableEnemyTrading || Current.player().getTradeBinder().countAll() > 0;
+        }
+
         @Override
         protected DeckEditorPage[] getInitialPages()
         {
             if (AdventurePlayer.current().getAdventureMode() == AdventureModes.Commander)
-                return new DeckEditorPage[]{
-                        new CollectionCatalogPage(),
-                        new AdventureDeckSectionPage(DeckSection.Commander, ItemManagerConfig.ADVENTURE_EDITOR_POOL),
-                        new AdventureDeckSectionPage(DeckSection.Main, ItemManagerConfig.ADVENTURE_EDITOR_POOL),
-                        new AdventureDeckSectionPage(DeckSection.Sideboard, ItemManagerConfig.ADVENTURE_SIDEBOARD),
-                        new CollectionAutoSellPage(),
-                        new TradeBinderPage()
-                };
+            {
+                if (shouldShowTradeBinderPage())
+                {
+                    return new DeckEditorPage[]{
+                            new CollectionCatalogPage(),
+                            new AdventureDeckSectionPage(DeckSection.Commander, ItemManagerConfig.ADVENTURE_EDITOR_POOL),
+                            new AdventureDeckSectionPage(DeckSection.Main, ItemManagerConfig.ADVENTURE_EDITOR_POOL),
+                            new AdventureDeckSectionPage(DeckSection.Sideboard, ItemManagerConfig.ADVENTURE_SIDEBOARD),
+                            new CollectionAutoSellPage(),
+                            new TradeBinderPage()
+                    };
+                }
+                else
+                {
+                    return new DeckEditorPage[]{
+                            new CollectionCatalogPage(),
+                            new AdventureDeckSectionPage(DeckSection.Commander, ItemManagerConfig.ADVENTURE_EDITOR_POOL),
+                            new AdventureDeckSectionPage(DeckSection.Main, ItemManagerConfig.ADVENTURE_EDITOR_POOL),
+                            new AdventureDeckSectionPage(DeckSection.Sideboard, ItemManagerConfig.ADVENTURE_SIDEBOARD),
+                            new CollectionAutoSellPage()
+                    };
+                }
+            }
             else
             {
-                return new DeckEditorPage[]{
-                        new CollectionCatalogPage(),
-                        new AdventureDeckSectionPage(DeckSection.Main, ItemManagerConfig.ADVENTURE_EDITOR_POOL),
-                        new AdventureDeckSectionPage(DeckSection.Sideboard, ItemManagerConfig.ADVENTURE_SIDEBOARD),
-                        new CollectionAutoSellPage(),
-                        new TradeBinderPage()
-                };
+                if(shouldShowTradeBinderPage())
+                {
+                    return new DeckEditorPage[]{
+                            new CollectionCatalogPage(),
+                            new AdventureDeckSectionPage(DeckSection.Main, ItemManagerConfig.ADVENTURE_EDITOR_POOL),
+                            new AdventureDeckSectionPage(DeckSection.Sideboard, ItemManagerConfig.ADVENTURE_SIDEBOARD),
+                            new CollectionAutoSellPage(),
+                            new TradeBinderPage()
+                    };
+                }
+                else
+                {
+                    return new DeckEditorPage[]{
+                            new CollectionCatalogPage(),
+                            new AdventureDeckSectionPage(DeckSection.Main, ItemManagerConfig.ADVENTURE_EDITOR_POOL),
+                            new AdventureDeckSectionPage(DeckSection.Sideboard, ItemManagerConfig.ADVENTURE_SIDEBOARD),
+                            new CollectionAutoSellPage()
+                    };
+                }
             }
         }
 
@@ -564,7 +596,7 @@ public class AdventureDeckEditor extends FDeckEditor
                 menu.addItem(moveToCatalog);
             }
 
-            if (tradeBinderPage != null && canMoveToBinder > 0) {
+            if (Config.instance().getSettingData().enableEnemyTrading && tradeBinderPage != null && canMoveToBinder > 0) {
                 String action = "To Trade Binder (" + binderCount + "/" + safeToSellCount + ")";
                 String prompt = String.format("%s - %s %s", card, action, lblHowMany);
 

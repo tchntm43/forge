@@ -95,6 +95,19 @@ public class SettingsScene extends UIScene {
         showDialog(createNewPlane);
     }
 
+    private void addAdventureModSetting(String name, boolean value, java.util.function.Consumer<Boolean> setter)
+    {
+        addSettingField(name, value, new ChangeListener()
+        {
+            @Override
+            public void changed(ChangeEvent event, Actor actor)
+            {
+                setter.accept(((CheckBox) actor).isChecked());
+                Config.instance().saveSettings();
+            }
+        });
+    }
+
     private SettingsScene() {
         super(Forge.isLandscapeMode() ? "ui/settings.json" : "ui/settings_portrait.json");
 
@@ -286,6 +299,20 @@ public class SettingsScene extends UIScene {
                 Config.instance().saveSettings();
             }
         });
+        addLabel("***Justin's Mod Settings***");
+        addAdventureModSetting("Enable Random Map Events", Config.instance().getSettingData().enableRandomMapEvents,
+                value -> Config.instance().getSettingData().enableRandomMapEvents=value);
+        addAdventureModSetting("Enable trading with enemies", Config.instance().getSettingData().enableEnemyTrading,
+                value -> Config.instance().getSettingData().enableEnemyTrading = value);
+        addAdventureModSetting("Enemies you have defeated many times fear you",
+                Config.instance().getSettingData().enableEnemyFear,
+                value -> Config.instance().getSettingData().enableEnemyFear=value);
+        addAdventureModSetting("Chests rarely have restricted cards", Config.instance().getSettingData().enableRestrictedCardChestRewards,
+                value -> Config.instance().getSettingData().enableRestrictedCardChestRewards = value);
+        addAdventureModSetting("AI concedes when it knows it is about to lose (EXPERIMENTAL)",
+                Config.instance().getSettingData().enableAiConcession,
+                value -> Config.instance().getSettingData().enableAiConcession = value);
+        addLabel("*****");
         CheckBox cbAnte = addCheckBox(Forge.getLocalizer().getMessage("cbAnte"), ForgePreferences.FPref.UI_ANTE);
         CheckBox cbAnteMatchRarity = addCheckBox(Forge.getLocalizer().getMessage("cbAnteMatchRarity"), ForgePreferences.FPref.UI_ANTE_MATCH_RARITY);
         CheckBox cbAnteIncludeBasicLands = addCheckBox(Forge.getLocalizer().getMessage("cbAnteIncludeBasicLands"), ForgePreferences.FPref.UI_ANTE_INCLUDE_BASIC_LANDS);

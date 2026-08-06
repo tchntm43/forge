@@ -886,7 +886,7 @@ public final class StaticAbilityContinuous {
                 }
             }
 
-            if (controllerMayPlay && (mayPlayLimit == null || stAb.getMayPlayTurn() < mayPlayLimit)) {
+            if (controllerMayPlay && !affectedCard.isEmblem() && (mayPlayLimit == null || stAb.getMayPlayTurn() < mayPlayLimit)) {
                 String mayPlayAltCost = mayPlayAltManaCost;
 
                 if (mayPlayAltCost != null) {

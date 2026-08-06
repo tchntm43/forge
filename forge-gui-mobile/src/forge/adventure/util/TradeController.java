@@ -91,7 +91,18 @@ public final class TradeController
             }
         };
 
-        // Option 2: decline, remove mob and clear collision state
+        // Option 2: Fight anyway
+        DialogData optFight = new DialogData();
+        optFight.name = "No, let's just fight!";
+        optFight.callback = new Consumer<Object>() {
+            @Override
+            public void accept(Object ignored)
+            {
+                WorldStage.getInstance().tradeToFight(mob);
+            }
+        };
+
+        // Option 3: decline, remove mob and clear collision state
         DialogData optNo = new DialogData();
         optNo.name = "Not interested";
         optNo.callback = new Consumer<Object>() {
@@ -102,7 +113,7 @@ public final class TradeController
             }
         };
 
-        root.options = new DialogData[] { optYes, optNo };
+        root.options = new DialogData[] { optYes, optFight, optNo };
 
         return root;
     }

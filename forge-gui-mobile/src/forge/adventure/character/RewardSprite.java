@@ -14,7 +14,10 @@ import java.util.Random;
  * Character sprite that represents reward pickups.
  */
 
-public class RewardSprite extends CharacterSprite {
+public class RewardSprite extends CharacterSprite
+{
+    private String spritePath;
+
     private final static String default_reward = "[\n" +
             "\t\t{\n" +
             "\t\t\t\"type\": \"gold\",\n" +
@@ -28,6 +31,7 @@ public class RewardSprite extends CharacterSprite {
 
     public RewardSprite(String data, String _sprite){
         super(_sprite);
+        this.spritePath = _sprite;
         if (data != null) {
             rewards = JSONStringLoader.parse(RewardData[].class, data, default_reward);
         } else { //Shouldn't happen, but make sure it doesn't fly by.
@@ -38,6 +42,7 @@ public class RewardSprite extends CharacterSprite {
 
     public RewardSprite(int _id, String data, String _sprite){
         this(data, _sprite);
+        this.spritePath = _sprite;
         this.id = _id; //The ID is for remembering removals.
     }
 
@@ -54,21 +59,11 @@ public class RewardSprite extends CharacterSprite {
 
         Random rewardRandom = new Random();
 
-        boolean hasCardReward = false;
-        for (RewardData rdata : rewards) {
-            String t = rdata.type;
-            if (t == null || t.isEmpty()) {
-                t = "randomCard";
-            }
-            if ("card".equalsIgnoreCase(t)
-                    || "randomCard".equalsIgnoreCase(t)
-                    || "deckCard".equalsIgnoreCase(t)) {
-                hasCardReward = true;
-                break;
-            }
-        }
+        boolean isTreasureChest = "sprites/treasure.atlas".equalsIgnoreCase(spritePath);
 
-        if (hasCardReward) {
+        if (isTreasureChest && Config.instance().getSettingData().enableRestrictedCardChestRewards)
+        {
+
             try {
                 var configData = Config.instance().getConfigData();
                 String[] restricted = configData.restrictedCards;
@@ -104,13 +99,13 @@ public class RewardSprite extends CharacterSprite {
                             || "randomCard".equalsIgnoreCase(type)
                             || "deckCard".equalsIgnoreCase(type);
 
-            if (!isCardReward) {
-                // Non-card rewards (gold, shards, items, life, etc.) – unchanged
+            if (!isCardReward || !isTreasureChest) {
+                // Anything other than a treasure chest
                 ret.addAll(rdata.generate(false, true));
                 continue;
             }
 
-            // ---- Card reward: apply custom rarity distribution per card ----
+            // ---- Card reward: apply custom rarity distribution per card for treasure chests----
 
             int baseCount = rdata.count;
             int maxCount = Math.round(rdata.addMaxCount * Current.player().getDifficulty().rewardMaxFactor);

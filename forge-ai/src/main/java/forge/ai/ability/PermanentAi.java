@@ -287,6 +287,16 @@ public class PermanentAi extends SpellAbilityAi {
                     if (m.size() + extraMana < Integer.parseInt(value)) {
                         dontCast = true;
                     }
+                } else if (param.equals("GraveyardCardsGE")) {
+                    // Only cast if there are at least X cards in the AI's graveyard.
+                    if (ai.getCardsIn(ZoneType.Graveyard).size() < Integer.parseInt(value)) {
+                        dontCast = true;
+                    }
+                } else if (param.equals("GraveyardNonLandCardsGE")) {
+                    // Only cast if there are at least X nonland cards in the AI's graveyard.
+                    if (CardLists.count(ai.getCardsIn(ZoneType.Graveyard), CardPredicates.NON_LANDS) < Integer.parseInt(value)) {
+                        dontCast = true;
+                    }
                 } else if (param.equals("NeverCastIfLifeBelow")) {
                     // Do not cast this spell if AI life is below a certain threshold
                     if (ai.getLife() < Integer.parseInt(value)) {

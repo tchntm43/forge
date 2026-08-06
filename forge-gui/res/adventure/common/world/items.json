@@ -1890,6 +1890,17 @@
     }
   },
   {
+    "name": "Liliana's Chain Veil",
+    "description": "You being each duel with The Chain Veil on the battlefield",
+    "equipmentSlot": "Neck",
+    "iconName": "ChainVeil",
+    "effect": {
+      "startBattleWithCard": [
+        "The Chain Veil"
+      ]
+    }
+  },
+  {
     "name": "Hallowed Sigil",
     "description": "Give a creature hexproof until end of turn",
     "equipmentSlot": "Neck",

@@ -19388,6 +19388,17 @@
         "probability": 1,
         "count": 1,
         "itemName": "Liliana's Stone"
+      },
+      {
+        "type": "life",
+        "probability": 1,
+        "count": 1
+      },
+      {
+        "type": "item",
+        "probability": 1,
+        "count": 1,
+        "itemName": "Liliana's Chain Veil"
       }
     ],
     "colors": "B",

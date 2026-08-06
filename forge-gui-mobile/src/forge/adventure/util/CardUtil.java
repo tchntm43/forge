@@ -422,6 +422,10 @@ public class CardUtil {
 
     public static boolean isBanned(String cardName)
     {
+        if(!Config.instance().getSettingData().disableDigitalCardRewards)
+        {
+            return false;
+        }
         ConfigData configData = Config.instance().getConfigData();
         String[] banned = configData.bannedCards;
         if (banned == null || cardName == null)
@@ -444,7 +448,12 @@ public class CardUtil {
 
     public static String[] getBannedList()
     {
-        return Config.instance().getConfigData().bannedCards;
+        if(!Config.instance().getSettingData().disableDigitalCardRewards)
+        {
+            return new String[0];
+        }
+        String banned[] = Config.instance().getConfigData().bannedCards;
+        return banned == null ? new String[0] : banned;
     }
 
     public static void filterBannedFromPool(List<PaperCard> pool) {

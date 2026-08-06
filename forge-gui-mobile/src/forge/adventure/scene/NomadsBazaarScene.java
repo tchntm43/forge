@@ -266,6 +266,7 @@ public class NomadsBazaarScene extends UIScene
     private void buildBazaarCardPool() {
         bazaarFaces = FModel.getMagicDb().getCommonCards().streamAllFaces()
                 .filter(face -> !isRestricted(face.getName()))
+                .filter(face -> !CardUtil.isBanned(face.getName()))
                 .collect(Collectors.toList());
     }
 

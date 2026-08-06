@@ -78,6 +78,10 @@ public abstract class Spell extends SpellAbility implements java.io.Serializable
         if (card.isInPlay()) {
             return null;
         }
+        if(card.isEmblem())
+        {
+            return null;
+        }
 
         // CR 118.6 cost is unpayable
         if (!isCastFromPlayEffect() && getPayCosts().hasManaCost() && getPayCosts().getCostMana().getMana().isNoCost()) {
