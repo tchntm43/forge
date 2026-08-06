@@ -12,10 +12,12 @@
 
 ## Adventure World
 
+- Added random map events, which can include opportunities for random cards, gold, buying cards, duplicating cards, and at least one minor negative event. Random events can be toggled by a setting.
 - Added enemy trading behavior and trade binder support. This can be toggled by a setting.
 - Added enemy fear behavior based on player win history. Enemies that are afraid of the player won't get too close, but can be chased down. This can be toggled by a setting.
 - Added rare restricted-card chest rewards. This can be toggled by a setting.
-- Added Liliana rewards, including +1 life and The Chain Veil item.
+- Added Liliana rewards, including +1 life and Liliana's Chain Veil item.
+- Made some adjustments to the card rarities in chests and in shops
 
 ## Card And Script Fixes
 
@@ -28,8 +30,8 @@
 
 ## Item Changes
 
-- Added The Chain Veil as a Liliana boss item.
-- The Chain Veil item starts battles with The Chain Veil on the battlefield.
+- Added Liliana's Chain Veil as a Liliana boss item.
+- Liliana's Chain Veil item starts battles with The Chain Veil on the battlefield.
 
 ## Future Goals
 - Randomize biome distribution on the map (likely a large, challenging project)
